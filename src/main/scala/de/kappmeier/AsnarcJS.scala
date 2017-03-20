@@ -1,4 +1,4 @@
-package example
+package de.kappmeier
 import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -22,24 +22,22 @@ import AsnarcState._
 @JSExport
 object AsnarcJS {
     var snakeGame: SnakeGameImpl = new SnakeGameImpl
-    val asnarcState = STARTED
+  val asnarcState = STARTED
 
     /**
      * Initializes Asnarc for a new round.
      */
-    def initGame() = {
-        snakeGame = new SnakeGameImpl    
+    def initGame(): Unit = {
+        snakeGame = new SnakeGameImpl
     }
 
     @JSExport
     def main(canvas: html.Canvas): Unit = {
         val renderer: AsnarcJSRenderer = new AsnarcJSRenderer(canvas)
 
-        var counter: Int = 1
-
         def run() = {
             snakeGame.nextFrame()
-            
+
             renderer.render(snakeGame)
         }
 

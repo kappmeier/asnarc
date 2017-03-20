@@ -1,22 +1,23 @@
-package example
-import scala.scalajs.js.annotation.JSExport
-import org.scalajs.dom
-import org.scalajs.dom.html
+package de.kappmeier
 
-import Direction._
+import org.scalajs.dom
+import org.scalajs.dom.{CanvasRenderingContext2D, html}
+
+import scala.collection.immutable.HashMap
 
 /**
  * Draws the Asnark game into a canvas.
  */
 class AsnarcJSRenderer(canvas: html.Canvas) {
-    val drawColors = collection.immutable.HashMap[String, String](Food.getClass.getSimpleName -> "darkred",
+    val drawColors: HashMap[String, String] = collection.immutable.HashMap[String, String](
+        Food.getClass.getSimpleName -> "darkred",
         Wall.getClass.getSimpleName -> "black",
         Body.getClass.getSimpleName -> "darkgreen",
         SpecialFood.getClass.getSimpleName -> "orange",
         Player.getClass.getSimpleName -> "green"
     )
 
-        val renderer = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+        val renderer: CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
         canvas.width = canvas.parentElement.clientWidth
         canvas.height = canvas.parentElement.clientHeight
@@ -31,11 +32,11 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
         renderer.textAlign = "left"
         renderer.textBaseline = "top"
 
-        val radius = 5
-        val border = 1
-        val drawRadius = radius - border
-        val drawSize = 2 * drawRadius
-        val size = 2 * radius
+        val radius: Int = 5
+        val border: Int = 1
+        val drawRadius: Int = radius - border
+        val drawSize: Int = 2 * drawRadius
+        val size: Int = 2 * radius
 
         var counter: Int = 1
 
@@ -64,12 +65,12 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
 
     def renderMove(snakeGame: SnakeGameImpl): Unit = {
          // Draw background
-         for ((p, e) <- snakeGame.map) {
+         for ((_, e) <- snakeGame.map) {
              val color = drawColors.getOrElse(e.getClass.getSimpleName, "yellow")
              renderer.fillStyle = color
              fillElement(e)
          }
-         renderer.fillStyle = drawColors.get(Player.getClass.getSimpleName).get
+         renderer.fillStyle = drawColors(Player.getClass.getSimpleName)
          fillElement(snakeGame.player)
     }
 
