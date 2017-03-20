@@ -22,13 +22,14 @@ import AsnarcState._
 @JSExport
 object AsnarcJS {
     var snakeGame: SnakeGameImpl = new SnakeGameImpl
-  val asnarcState = STARTED
+    var asnarcState = STARTED
 
     /**
      * Initializes Asnarc for a new round.
      */
     def initGame(): Unit = {
         snakeGame = new SnakeGameImpl
+        asnarcState = RUNNING
     }
 
     @JSExport
@@ -38,23 +39,36 @@ object AsnarcJS {
         def run() = {
             snakeGame.nextFrame()
 
-            renderer.render(snakeGame)
+            if (asnarcState == RUNNING) {
+                snakeGame.updateMove()
+                if (snakeGame.dead) {
+                    asnarcState = GAME_OVER
+                }
+            }
+
+            renderer.render(snakeGame, asnarcState)
         }
 
         dom.window.setInterval(run _, 100)
 
         canvas.onclick = (e: dom.MouseEvent) => {
-            dom.console.log(e)
+            asnarcState match {
+                case STARTED => initGame()
+                case RUNNING => asnarcState = PAUSE
+                case PAUSE => asnarcState = RUNNING
+            }
         }
 
         canvas.onkeydown = (e: dom.KeyboardEvent) => {
-            if (snakeGame.dead) {
-                initGame()
-            } else {
-                val newDirection: Option[DirectionVal] = Direction.byKeyCode(e.keyCode)
-                if (newDirection.isDefined) {
-                    snakeGame.newDirection(newDirection.get)
-                }
+            asnarcState match {
+                case STARTED => initGame()
+                case RUNNING =>
+                    val newDirection: Option[DirectionVal] = Direction.byKeyCode(e.keyCode)
+                    if (newDirection.isDefined) {
+                        snakeGame.newDirection(newDirection.get)
+                    }
+                case GAME_OVER => initGame()
+                case PAUSE => asnarcState = RUNNING
             }
         }
     }
