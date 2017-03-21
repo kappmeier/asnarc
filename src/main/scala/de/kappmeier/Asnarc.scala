@@ -263,6 +263,7 @@ class SnakeGameImpl extends SnakeGame {
     val map = new mutable.HashMap[Point, StaticElement]()
     
     var frame = 0
+    var turns = 0
 
     val wall: mutable.Queue[Element] = mutable.Queue[Element]()
     val initialFood: Point = freeLocation()
@@ -349,6 +350,7 @@ class SnakeGameImpl extends SnakeGame {
         frame += 1
         if (keys.nonEmpty) {
             d = keys.dequeue
+            turns += 1
         }
     }
     

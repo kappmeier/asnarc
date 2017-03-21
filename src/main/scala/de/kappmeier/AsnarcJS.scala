@@ -37,9 +37,9 @@ object AsnarcJS {
         val renderer: AsnarcJSRenderer = new AsnarcJSRenderer(canvas)
 
         def run() = {
-            snakeGame.nextFrame()
 
             if (asnarcState == RUNNING) {
+                snakeGame.nextFrame()
                 snakeGame.updateMove()
                 if (snakeGame.dead) {
                     asnarcState = GAME_OVER
@@ -59,16 +59,26 @@ object AsnarcJS {
             }
         }
 
+        val pauseKeyCodes = Set(13, 32)
         canvas.onkeydown = (e: dom.KeyboardEvent) => {
+            def updateDirection(keyCode: Int): Unit = {
+                val newDirection: Option[DirectionVal] = Direction.byKeyCode(e.keyCode)
+                if (newDirection.isDefined) {
+                    snakeGame.newDirection(newDirection.get)
+                }
+            }
             asnarcState match {
                 case STARTED => initGame()
                 case RUNNING =>
-                    val newDirection: Option[DirectionVal] = Direction.byKeyCode(e.keyCode)
-                    if (newDirection.isDefined) {
-                        snakeGame.newDirection(newDirection.get)
+                    updateDirection(e.keyCode)
+
+                    if (pauseKeyCodes.contains(e.keyCode)) {
+                        asnarcState = PAUSE
                     }
                 case GAME_OVER => initGame()
-                case PAUSE => asnarcState = RUNNING
+                case PAUSE =>
+                    updateDirection(e.keyCode)
+                    asnarcState = RUNNING
             }
         }
     }
