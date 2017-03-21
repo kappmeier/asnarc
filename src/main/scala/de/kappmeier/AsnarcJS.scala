@@ -56,6 +56,7 @@ object AsnarcJS {
                 case STARTED => initGame()
                 case RUNNING => asnarcState = PAUSE
                 case PAUSE => asnarcState = RUNNING
+                case GAME_OVER =>
             }
         }
 
