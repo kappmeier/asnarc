@@ -21,23 +21,23 @@ import AsnarcState._
  */
 @JSExport
 object AsnarcJS {
-    var snakeGame: SnakeGameImpl = new SnakeGameImpl
+    var snakeGame: SnakeGameImpl = new SnakeGameImpl("0,0,┴")
     var asnarcState = STARTED
 
     /**
      * Initializes Asnarc for a new round.
      */
-    def initGame(): Unit = {
-        snakeGame = new SnakeGameImpl
+    def initGame(level: String): Unit = {
+        snakeGame = new SnakeGameImpl(level)
         asnarcState = RUNNING
     }
 
     @JSExport
-    def main(canvas: html.Canvas): Unit = {
+    def main(canvas: html.Canvas, level: String): Unit = {
         val renderer: AsnarcJSRenderer = new AsnarcJSRenderer(canvas)
+        initGame(level)
 
         def run() = {
-
             if (asnarcState == RUNNING) {
                 snakeGame.nextFrame()
                 snakeGame.updateMove()
@@ -53,7 +53,7 @@ object AsnarcJS {
 
         canvas.onclick = (e: dom.MouseEvent) => {
             asnarcState match {
-                case STARTED => initGame()
+                case STARTED => initGame("0,0,┴")
                 case RUNNING => asnarcState = PAUSE
                 case PAUSE => asnarcState = RUNNING
                 case GAME_OVER =>
@@ -69,14 +69,14 @@ object AsnarcJS {
                 }
             }
             asnarcState match {
-                case STARTED => initGame()
+                case STARTED => initGame(level)
                 case RUNNING =>
                     updateDirection(e.keyCode)
 
                     if (pauseKeyCodes.contains(e.keyCode)) {
                         asnarcState = PAUSE
                     }
-                case GAME_OVER => initGame()
+                case GAME_OVER => initGame(level)
                 case PAUSE =>
                     updateDirection(e.keyCode)
                     asnarcState = RUNNING

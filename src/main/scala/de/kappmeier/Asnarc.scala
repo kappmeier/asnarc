@@ -250,7 +250,7 @@ case class SpecialFoodDisappearPeriod(food: SpecialFood, time: Int) extends Time
     }
 }
 
-class SnakeGameImpl extends SnakeGame {
+class SnakeGameImpl(level: String) extends SnakeGame {
     override var snake = new mutable.Queue[Body]()
     override var dead = false
     override val stepTime = 100
@@ -265,10 +265,15 @@ class SnakeGameImpl extends SnakeGame {
     var frame = 0
     var turns = 0
 
-    val wall: mutable.Queue[Element] = mutable.Queue[Element]()
+
     val initialFood: Point = freeLocation()
     val doorSize: Int = 3
+
+    var lg = new LevelGenerator()
+
+    val wall: mutable.Queue[Element] = lg.generate(level)
     initLevel()
+
     addElement(initialFood, Food(initialFood))
         
     var specialFood: Option[Point] = None
@@ -375,27 +380,7 @@ class SnakeGameImpl extends SnakeGame {
      *
      */
     def initLevel(): Unit = {
-        for (i <- 1 until cols/2 - doorSize) {
-            addWallElement(Point(i, 0), Set(Direction.LEFT, Direction.RIGHT))
-            addWallElement(Point(i, rows - 1), Set(Direction.LEFT, Direction.RIGHT))
-        }
-        for (i <- cols/2 + doorSize until cols - 1) {
-            addWallElement(Point(i, 0), Set(Direction.LEFT, Direction.RIGHT))
-            addWallElement(Point(i, rows - 1), Set(Direction.LEFT, Direction.RIGHT))
-        }
-        for (i <- 1 until rows/2 - doorSize) {
-            addWallElement(Point(0, i), Set(Direction.UP, Direction.DOWN))
-            addWallElement(Point(cols - 1, i), Set(Direction.UP, Direction.DOWN))
-        }
-        for (i <- rows/2 + doorSize until rows - 1) {
-            addWallElement(Point(0, i), Set(Direction.UP, Direction.DOWN))
-            addWallElement(Point(cols - 1, i), Set(Direction.UP, Direction.DOWN))
-        }
-        addWallElement(Point(0, 0), Set(Direction.RIGHT, Direction.DOWN))
-        addWallElement(Point(cols - 1, 0), Set(Direction.LEFT, Direction.DOWN))
-
-        addWallElement(Point(0, rows - 1), Set(Direction.RIGHT, Direction.UP))
-        addWallElement(Point(cols - 1, rows - 1), Set(Direction.LEFT, Direction.UP))
+        wall.foreach( element => addElement(element.p, element.asInstanceOf[Wall]))
     }
 
     def initLevelFull(): Unit = {
