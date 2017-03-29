@@ -49,30 +49,27 @@ trait Element {
  * Passive elements.
  */
 trait StaticElement extends Entity with Element {
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition])
+    def update(game: SnakeGame): Seq[StateTransition]
 }
 
 case class Wall(p: Point, connects: Set[Direction]) extends Entity with StaticElement{
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
-        (Seq.empty, Seq(Death()))
+    def update(game: SnakeGame): Seq[StateTransition] = {
+        Seq(Death())
     }
 }
 
 case class Food(p: Point) extends Entity with StaticElement {
     override def connects = Set.empty[Direction]
     
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
-        (Seq.empty, Seq(MoveHead(game.direction()), EatFood(this), AppendSnake(game.player)))
-    }
+    def update(game: SnakeGame): Seq[StateTransition] =
+        Seq(MoveHead(game.direction()), EatFood(this), AppendSnake(game.player))
 }
 
 case class SpecialFood(p: Point) extends Entity with StaticElement {
     override def connects = Set.empty[Direction]
 
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
-        (Seq.empty, Seq(MoveHead(game.direction()), EatSpecialFood(this), AppendSnake(game.player, full = true)
-        ))
-    }
+    def update(game: SnakeGame): Seq[StateTransition] =
+        Seq(MoveHead(game.direction()), EatSpecialFood(this), AppendSnake(game.player, full = true))
 }
 
 case class Body(p: Point, connects: Set[Direction]) extends Entity with StaticElement {
@@ -80,18 +77,15 @@ case class Body(p: Point, connects: Set[Direction]) extends Entity with StaticEl
         this(e.p, e.connects + connectsAlso)
     }
 
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
-        (Seq.empty, Seq(Death()))
-    }
+    def update(game: SnakeGame): Seq[StateTransition] = Seq(Death())
 }
 
 object Empty extends StaticElement with Entity {
     override def p = Point(-1, -1)
     override def connects = Set.empty[Direction]
 
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
-        (Seq.empty, Seq(MoveHead(game.direction()), AppendSnake(game.player), MoveSnake()))
-    }
+    def update(game: SnakeGame): Seq[StateTransition] =
+        Seq(MoveHead(game.direction()), AppendSnake(game.player), MoveSnake())
 }
 
 /**
@@ -108,14 +102,12 @@ case class Player(p: Point, connects: Set[Direction]) extends Entity with Action
         this(p, Set[Direction](opposite(moveDirection)))
     }
 
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
-        (Seq.empty, Seq.empty)
-    }
+    def update(game: SnakeGame): Seq[StateTransition] = Seq.empty
 }
 
 trait TimedEntity {
     val time: Int
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition])
+    def update(game: SnakeGame): Seq[StateTransition]
 }
 
 trait SnakeEvent
@@ -213,7 +205,7 @@ case class SpecialFoodWaitPeriod(time: Int) extends TimedEntity {
     /**
      * Creates a new timer to create food.
      */
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
+    def update(game: SnakeGame): Seq[StateTransition] = {
         val foodPosition = game.freeLocation()
         val specialFood = SpecialFood(foodPosition)
 
@@ -225,7 +217,7 @@ case class SpecialFoodWaitPeriod(time: Int) extends TimedEntity {
         game.addElement(foodPosition, specialFood)
         
         game.addTimer(timer)
-        (Seq.empty, Seq.empty)
+        Seq.empty
     }
 }
 
@@ -239,14 +231,14 @@ object TimeConst {
  */
 case class SpecialFoodDisappearPeriod(food: SpecialFood, time: Int) extends TimedEntity {
 
-    def update(game: SnakeGame): (Seq[SnakeEvent], Seq[StateTransition]) = {
+    def update(game: SnakeGame): Seq[StateTransition] = {
         val potentialFood = game.elementAt(food.p)
         if (potentialFood == food) {
             val appearAt = game.time() + (TimeConst.TimeBetweenSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
             game.removeElement(food.p)
             game.addTimer(SpecialFoodWaitPeriod(appearAt))
         }
-        (Seq.empty, Seq.empty)
+        Seq.empty
     }
 }
 
@@ -333,8 +325,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     
     def updateMove(element: ActionElement): Seq[StateTransition] = {
         val at: StaticElement = elementAt(element.p)
-        val (_, transitions) = at.update(this)
-        transitions
+        at.update(this)
     }
 
     def elementAt(p: Point): StaticElement = map.getOrElse(p, Empty)
