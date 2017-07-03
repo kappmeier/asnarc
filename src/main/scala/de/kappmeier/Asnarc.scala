@@ -1,58 +1,89 @@
 package de.kappmeier
-import scala.util.Random
-import scala.math.Ordering
+
 import scala.collection.immutable.Set
 import scala.collection.mutable
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration.MILLISECONDS
-import scala.concurrent.duration.SECONDS
+import scala.concurrent.duration.{Duration, MILLISECONDS, SECONDS}
+import scala.math.Ordering
+import scala.util.Random
 
-case class Point(x: Int, y: Int){
-  def +(p: Point) = Point(x + p.x, y + p.y)
-  def /(d: Int) = Point(x / d, y / d)
-  def %(w: Int, h: Int) = Point((x + w) % w, (y + h) % h)
+case class Point(x: Int, y: Int) {
+    def +(p: Point) = Point(x + p.x, y + p.y)
+
+    def /(d: Int) = Point(x / d, y / d)
+
+    def %(w: Int, h: Int) = Point((x + w) % w, (y + h) % h)
 }
 
 object Direction extends Enumeration {
     type Direction = Value
-    val LEFT = DirectionVal(Point(-1, 0), 37)
-    val RIGHT = DirectionVal(Point(1, 0), 39)
-    val UP = DirectionVal(Point(0, -1), 38)
-    val DOWN = DirectionVal(Point(0, 1), 40)
-    case class DirectionVal(direction: Point, keyCode: Int) extends super.Val()
-    implicit def convert(value: Value): DirectionVal = value.asInstanceOf[DirectionVal]
-    val oppositeMap: scala.collection.immutable.Map[DirectionVal, DirectionVal] = Map(LEFT -> RIGHT, RIGHT -> LEFT, UP -> DOWN, DOWN -> UP)
-    def byKeyCode(keyCode: Int): Option[DirectionVal] = {
-        if (keyCode == LEFT.keyCode) {
-            return Some(LEFT)
-        } else if (keyCode == RIGHT.keyCode) {
-            return Some(RIGHT)
-        } else if (keyCode == UP.keyCode) {
-            return Some(UP)
-        } else if (keyCode == DOWN.keyCode) {
-            return Some(DOWN)
-        }
-        None
+    val Left: Direction = new DirectionVal(Point(-1, 0), 37) {
+        override def opposite: DirectionVal = Right
     }
-    implicit def opposite(d: DirectionVal): DirectionVal = oppositeMap.get(d).get
+    val Right: DirectionVal = new DirectionVal(Point(1, 0), 39) {
+        override def opposite: DirectionVal = Left
+    }
+    val Up: DirectionVal = new DirectionVal(Point(0, -1), 38) {
+        override def opposite: DirectionVal = Down
+    }
+    val Down: DirectionVal = new DirectionVal(Point(0, 1), 40) {
+        override def opposite: DirectionVal = Up
+    }
+
+    /**
+      * Initializes a direction with a point reflecting the vector of the direction and its key code.
+      *
+      * @param direction the vector of the direction
+      * @param keyCode the key code belonging to the direction
+      */
+    abstract case class DirectionVal(direction: Point, keyCode: Int) extends super.Val() {
+        def opposite: DirectionVal
+    }
+
+    /**
+      * Converts the enum type `Direction` to the internal `DirectionVal` type.
+      *
+      * @param value a `Direction` value
+      * @return the enum item as `DirectionVal`
+      */
+    implicit def convert(value: Value): DirectionVal = value.asInstanceOf[DirectionVal]
+
+    private val keyMap: Map[Int, Direction] = Direction.values.toList.map(d => d.keyCode -> d).toMap
+
+    /**
+      * Returns the direction belonging to a key code. If the key code does not belong to a direction, `None` is returned.
+      *
+      * @param keyCode the key code for a given direction
+      * @return the `Direction`, possibly `None`
+      */
+    def byKeyCode(keyCode: Int): Option[Direction] = keyMap.get(keyCode)
+
+    /**
+      * Returns the opposite `Direction` for a given `Direction`
+      *
+      * @param d the direction
+      * @return the opposite direction
+      */
+    implicit def opposite(d: DirectionVal): Direction = d.opposite
 }
-import Direction._
+
+import de.kappmeier.Direction._
 
 trait Entity
 
 trait Element {
     def p: Point
+
     def connects: Set[Direction]
 }
 
 /**
- * Passive elements.
- */
+  * Passive elements.
+  */
 trait StaticElement extends Entity with Element {
     def update(game: SnakeGame): Seq[StateTransition]
 }
 
-case class Wall(p: Point, connects: Set[Direction]) extends Entity with StaticElement{
+case class Wall(p: Point, connects: Set[Direction]) extends Entity with StaticElement {
     def update(game: SnakeGame): Seq[StateTransition] = {
         Seq(Death())
     }
@@ -60,7 +91,7 @@ case class Wall(p: Point, connects: Set[Direction]) extends Entity with StaticEl
 
 case class Food(p: Point) extends Entity with StaticElement {
     override def connects = Set.empty[Direction]
-    
+
     def update(game: SnakeGame): Seq[StateTransition] =
         Seq(MoveHead(game.direction()), EatFood(this), AppendSnake(game.player))
 }
@@ -82,6 +113,7 @@ case class Body(p: Point, connects: Set[Direction]) extends Entity with StaticEl
 
 object Empty extends StaticElement with Entity {
     override def p = Point(-1, -1)
+
     override def connects = Set.empty[Direction]
 
     def update(game: SnakeGame): Seq[StateTransition] =
@@ -89,13 +121,13 @@ object Empty extends StaticElement with Entity {
 }
 
 /**
- * Elements that are updated in each iteration.
- */
+  * Elements that are updated in each iteration.
+  */
 trait ActionElement extends Entity with Element
 
 case class Player(p: Point, connects: Set[Direction]) extends Entity with ActionElement {
     def this(x: Int, y: Int) {
-        this(Point(x,y), Set.empty[Direction])
+        this(Point(x, y), Set.empty[Direction])
     }
 
     def this(p: Point, moveDirection: Direction) {
@@ -107,6 +139,7 @@ case class Player(p: Point, connects: Set[Direction]) extends Entity with Action
 
 trait TimedEntity {
     val time: Int
+
     def update(game: SnakeGame): Seq[StateTransition]
 }
 
@@ -117,7 +150,7 @@ object Nothing extends SnakeEvent {
 }
 
 trait ToEvent extends SnakeEvent {
-    def applyTo(entity:Entity) : (Entity, Seq[SnakeEvent])
+    def applyTo(entity: Entity): (Entity, Seq[SnakeEvent])
 }
 
 trait StateTransition
@@ -152,7 +185,7 @@ case class EatSpecialFood(f: SpecialFood) extends StateTransition with WorldTran
     def updateWorld(game: SnakeGame) {
         // Remove the food
         game.removeElement(f.p)
-        
+
         // Place a new timer
         val appearAt = game.time() + (TimeConst.TimeBetweenSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
         game.addTimer(SpecialFoodWaitPeriod(appearAt))
@@ -163,8 +196,8 @@ case class AppendSnake(player: Player, full: Boolean) extends StateTransition wi
     def this(player: Player) = this(player, false)
 
     def updateWorld(game: SnakeGame) {
-    
-        val newElement: Body = if (full) Body(player.p, Set[Direction](LEFT, RIGHT, UP, DOWN)) else new Body(player, game.direction())
+
+        val newElement: Body = if (full) Body(player.p, Set[Direction](Left, Right, Up, Down)) else new Body(player, game.direction())
         game.snake.enqueue(newElement)
         game.addElement(player.p, newElement)
     }
@@ -172,7 +205,7 @@ case class AppendSnake(player: Player, full: Boolean) extends StateTransition wi
 
 // Companion object
 object AppendSnake {
-  def apply(player: Player) = new AppendSnake(player)
+    def apply(player: Player) = new AppendSnake(player)
 }
 
 case class MoveSnake() extends StateTransition with WorldTransition {
@@ -184,38 +217,45 @@ case class MoveSnake() extends StateTransition with WorldTransition {
 }
 
 /**
- * Collection of state for the snake game that is to be modified by [[Entity]].
- */
+  * Collection of state for the snake game that is to be modified by [[Entity]].
+  */
 trait SnakeGame {
     // Step time in milliseconds
-    val stepTime: Int 
+    val stepTime: Int
     var snake: mutable.Queue[Body]
     var dead: Boolean
     var player: Player
+
     def time(): Int
+
     def freeLocation(): Point
+
     def removeElement(p: Point): Unit
+
     def addElement(p: Point, element: StaticElement): Unit
+
     def direction(): Direction
+
     def addTimer(te: TimedEntity): Unit
+
     def elementAt(p: Point): StaticElement
 }
 
 case class SpecialFoodWaitPeriod(time: Int) extends TimedEntity {
     /**
-     * Creates a new timer to create food.
-     */
+      * Creates a new timer to create food.
+      */
     def update(game: SnakeGame): Seq[StateTransition] = {
         val foodPosition = game.freeLocation()
         val specialFood = SpecialFood(foodPosition)
 
         val disappearAt = game.time() + (TimeConst.TimeForSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
-        
+
         // timer to disappear
         val timer = SpecialFoodDisappearPeriod(specialFood, disappearAt)
-    
+
         game.addElement(foodPosition, specialFood)
-        
+
         game.addTimer(timer)
         Seq.empty
     }
@@ -227,8 +267,8 @@ object TimeConst {
 }
 
 /**
- * Timer until food disappears
- */
+  * Timer until food disappears
+  */
 case class SpecialFoodDisappearPeriod(food: SpecialFood, time: Int) extends TimedEntity {
 
     def update(game: SnakeGame): Seq[StateTransition] = {
@@ -253,7 +293,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     override var player = new Player(cols / 2, rows / 2)
 
     val map = new mutable.HashMap[Point, StaticElement]()
-    
+
     var frame = 0
     var turns = 0
 
@@ -267,19 +307,20 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     initLevel()
 
     addElement(initialFood, Food(initialFood))
-        
+
     var specialFood: Option[Point] = None
-    
+
     def timedElementOrder(te: TimedEntity): Int = -te.time
+
     val timedTransitions: mutable.PriorityQueue[TimedEntity] = mutable.PriorityQueue[TimedEntity]()(Ordering.by(timedElementOrder))
 
     addTimer(SpecialFoodWaitPeriod((TimeConst.TimeBetweenSpecialFood.toMillis / stepTime).asInstanceOf[Int]))
-    
+
     /**
-     *
-     * From the trait to retrieve and update the game status.
-     *
-     */
+      *
+      * From the trait to retrieve and update the game status.
+      *
+      */
     def direction(): Direction = d
 
     def removeElement(p: Point): Unit = {
@@ -300,29 +341,38 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     def addTimer(te: TimedEntity): Unit = {
         timedTransitions += te
     }
-    
+
     def time(): Int = frame
 
-    
-    /**
-     *
-     * External game status modification, keys, frame updates, etc.
-     *
-     */
 
-    def updateMove():Unit = {
+    /**
+      *
+      * External game status modification, keys, frame updates, etc.
+      *
+      */
+
+    /**
+      * A null object for empty transition lists.
+      */
+    private val FakeEntity: TimedEntity = new TimedEntity {
+        override def update(game: SnakeGame) = Nil
+
+        override val time: Int = frame + 1
+    }
+
+    def updateMove(): Unit = {
         val transitions: Seq[StateTransition] = updateMove(player)
-        
+
         transitions.foreach {
             case w: WorldTransition => w.updateWorld(this)
         }
 
         // TODO transform this special objects into general entities
-        while (timedTransitions.nonEmpty && timedTransitions.head.time.equals(time())) {
+        while (timedTransitions.headOption.getOrElse(FakeEntity).time.equals(time())) {
             timedTransitions.dequeue().update(this)
         }
     }
-    
+
     def updateMove(element: ActionElement): Seq[StateTransition] = {
         val at: StaticElement = elementAt(element.p)
         at.update(this)
@@ -330,17 +380,10 @@ class SnakeGameImpl(level: String) extends SnakeGame {
 
     def elementAt(p: Point): StaticElement = map.getOrElse(p, Empty)
 
-    def newFood(): Point = {
-        val x: Int = Random.nextInt(cols)
-        val y: Int = Random.nextInt(rows)
-        val newPoint = Point(x, y)
-        if (isIllegal(newPoint)) newFood() else newPoint
-    }
-    
     def isIllegal(p: Point): Boolean = outOfBounds(p) || hitSelf(p)
 
-    var d = Direction.LEFT
-    val keys = new mutable.Queue[DirectionVal]
+    var d = Direction.Left
+    val keys = new mutable.Queue[Direction]
 
     def nextFrame(): Unit = {
         frame += 1
@@ -349,14 +392,14 @@ class SnakeGameImpl(level: String) extends SnakeGame {
             turns += 1
         }
     }
-    
+
     def newDirection(d: Direction): Unit = keys.enqueue(d)
 
     /**
-     *
-     * Some methods.
-     *
-     */
+      *
+      * Some methods.
+      *
+      */
     def outOfBounds(p: Point): Boolean = {
         wall.exists(element => element.p == p)
     }
@@ -364,35 +407,35 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     def hitSelf(p: Point): Boolean = {
         snake.exists(element => element.p == p)
     }
-    
+
     /**
-     *
-     * Initialization of level.
-     *
-     */
+      *
+      * Initialization of level.
+      *
+      */
     def initLevel(): Unit = {
-        wall.foreach( element => addElement(element.p, element.asInstanceOf[Wall]))
+        wall.foreach(element => addElement(element.p, element.asInstanceOf[Wall]))
     }
 
     def initLevelFull(): Unit = {
         for (i <- 1 until cols - 1) {
-            addWallElement(Point(i, 0), Set(Direction.LEFT, Direction.RIGHT))
-            addWallElement(Point(i, rows - 1), Set(Direction.LEFT, Direction.RIGHT))
+            addWallElement(Point(i, 0), Set(Direction.Left, Direction.Right))
+            addWallElement(Point(i, rows - 1), Set(Direction.Left, Direction.Right))
         }
         for (i <- 1 until rows - 1) {
-            addWallElement(Point(0, i), Set(Direction.UP, Direction.DOWN))
-            addWallElement(Point(cols - 1, i), Set(Direction.UP, Direction.DOWN))
+            addWallElement(Point(0, i), Set(Direction.Up, Direction.Down))
+            addWallElement(Point(cols - 1, i), Set(Direction.Up, Direction.Down))
         }
-        addWallElement(Point(0, 0), Set(Direction.RIGHT, Direction.DOWN))
-        addWallElement(Point(cols - 1, 0), Set(Direction.LEFT, Direction.DOWN))
-        addWallElement(Point(0, rows - 1), Set(Direction.RIGHT, Direction.UP))
-        addWallElement(Point(cols - 1, rows - 1), Set(Direction.LEFT, Direction.UP))
+        addWallElement(Point(0, 0), Set(Direction.Right, Direction.Down))
+        addWallElement(Point(cols - 1, 0), Set(Direction.Left, Direction.Down))
+        addWallElement(Point(0, rows - 1), Set(Direction.Right, Direction.Up))
+        addWallElement(Point(cols - 1, rows - 1), Set(Direction.Left, Direction.Up))
     }
-    
+
     def addWallElement(p: Point, c: Set[Direction]): Unit = {
         val wallElement = Wall(p, c)
         wall.enqueue(wallElement)
         addElement(p, wallElement)
     }
-    
+
 }

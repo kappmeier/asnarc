@@ -124,10 +124,10 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
     }
 
     def fillElement(location: Element): Unit = {
-        val x = if (location.connects contains Direction.LEFT) location.p.x * size else location.p.x * size + border
-        val y = if (location.connects contains Direction.UP) location.p.y * size else location.p.y * size + border
-        val w = drawSize + (if (location.connects contains Direction.LEFT) 1 else 0) + (if (location.connects contains Direction.RIGHT) 1 else 0)
-        val h = drawSize + (if (location.connects contains Direction.UP) 1 else 0) + (if (location.connects contains Direction.DOWN) 1 else 0)
+        val x = if (location.connects contains Direction.Left) location.p.x * size else location.p.x * size + border
+        val y = if (location.connects contains Direction.Up) location.p.y * size else location.p.y * size + border
+        val w = drawSize + (if (location.connects contains Direction.Left) 1 else 0) + (if (location.connects contains Direction.Right) 1 else 0)
+        val h = drawSize + (if (location.connects contains Direction.Up) 1 else 0) + (if (location.connects contains Direction.Down) 1 else 0)
         renderer.fillRect(x, y, w, h)
     }
 

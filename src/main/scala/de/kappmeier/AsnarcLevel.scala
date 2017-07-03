@@ -8,17 +8,17 @@ import scala.collection.mutable
 case class LevelGenerator() {
 
     val drawColors: HashMap[Char, Set[Direction]] = collection.immutable.HashMap[Char, Set[Direction]](
-        '─' -> Set(Direction.LEFT, Direction.RIGHT),
-        '│' -> Set(Direction.DOWN, Direction.UP),
-        '┌' -> Set(Direction.DOWN, Direction.RIGHT),
-        '┐' -> Set(Direction.DOWN, Direction.LEFT),
-        '┘' -> Set(Direction.LEFT, Direction.UP),
-        '└' -> Set(Direction.RIGHT, Direction.UP),
-        '├' -> Set(Direction.DOWN, Direction.RIGHT, UP),
-        '┬' -> Set(Direction.DOWN, Direction.RIGHT),
-        '┤' -> Set(Direction.DOWN, Direction.LEFT, UP),
-        '┴' -> Set(Direction.LEFT, Direction.RIGHT, UP),
-        '┼' -> Set(Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP),
+        '─' -> Set(Direction.Left, Direction.Right),
+        '│' -> Set(Direction.Down, Direction.Up),
+        '┌' -> Set(Direction.Down, Direction.Right),
+        '┐' -> Set(Direction.Down, Direction.Left),
+        '┘' -> Set(Direction.Left, Direction.Up),
+        '└' -> Set(Direction.Right, Direction.Up),
+        '├' -> Set(Direction.Down, Direction.Right, Up),
+        '┬' -> Set(Direction.Down, Direction.Right),
+        '┤' -> Set(Direction.Down, Direction.Left, Up),
+        '┴' -> Set(Direction.Left, Direction.Right, Up),
+        '┼' -> Set(Direction.Down, Direction.Left, Direction.Right, Direction.Up),
         ' ' -> Set()
     )
 

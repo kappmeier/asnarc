@@ -63,7 +63,7 @@ object AsnarcJS {
         val pauseKeyCodes = Set(13, 32)
         canvas.onkeydown = (e: dom.KeyboardEvent) => {
             def updateDirection(keyCode: Int): Unit = {
-                val newDirection: Option[DirectionVal] = Direction.byKeyCode(e.keyCode)
+                val newDirection: Option[Direction] = Direction.byKeyCode(e.keyCode)
                 if (newDirection.isDefined) {
                     snakeGame.newDirection(newDirection.get)
                 }
