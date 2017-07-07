@@ -1,9 +1,13 @@
-package de.kappmeier
+package de.kappmeier.asnarc
+
+import de.kappmeier.asnarc.Direction.Direction
+import de.kappmeier.asnarc.render.AsnarcJSRenderer
+import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
+
 import scala.scalajs.js.annotation.JSExport
+import scala.scalajs.js.annotation.JSExportTopLevel
 import org.scalajs.dom
 import org.scalajs.dom.html
-
-import Direction._
 
 /**
  * Different game states to render.
@@ -19,10 +23,10 @@ import AsnarcState._
  *
  * The visualization consists of a single line of status information and a rectangular field.
  */
-@JSExport
+@JSExportTopLevel("AsnarcJS")
 object AsnarcJS {
-    var snakeGame: SnakeGameImpl = new SnakeGameImpl("0,0,┴")
     var asnarcState = STARTED
+    var snakeGame: SnakeGameImpl = new SnakeGameImpl("0,0, ")
 
     /**
      * Initializes Asnarc for a new round.
@@ -34,14 +38,15 @@ object AsnarcJS {
 
     @JSExport
     def main(canvas: html.Canvas, level: String): Unit = {
-        val renderer: AsnarcJSRenderer = new AsnarcJSRenderer(canvas)
+        val localization = new AsnarcLocalizationDe
+        val renderer: AsnarcJSRenderer = new AsnarcJSRenderer(canvas, localization)
         initGame(level)
 
-        def run() = {
+        scala.scalajs.js.timers.setInterval(100) {
             if (asnarcState == RUNNING) {
                 snakeGame.nextFrame()
                 snakeGame.updateMove()
-                if (snakeGame.dead) {
+                if (snakeGame.state.dead) {
                     asnarcState = GAME_OVER
                 }
             }
@@ -49,11 +54,9 @@ object AsnarcJS {
             renderer.render(snakeGame, asnarcState)
         }
 
-        dom.window.setInterval(run _, 100)
-
         canvas.onclick = (e: dom.MouseEvent) => {
             asnarcState match {
-                case STARTED => initGame("0,0,┴")
+                case STARTED => initGame("0,0, ")
                 case RUNNING => asnarcState = PAUSE
                 case PAUSE => asnarcState = RUNNING
                 case GAME_OVER =>

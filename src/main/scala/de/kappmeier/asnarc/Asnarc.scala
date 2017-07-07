@@ -1,4 +1,6 @@
-package de.kappmeier
+package de.kappmeier.asnarc
+
+import de.kappmeier.asnarc.Direction._
 
 import scala.collection.immutable.Set
 import scala.collection.mutable
@@ -6,67 +8,6 @@ import scala.concurrent.duration.{Duration, MILLISECONDS, SECONDS}
 import scala.math.Ordering
 import scala.util.Random
 
-case class Point(x: Int, y: Int) {
-    def +(p: Point) = Point(x + p.x, y + p.y)
-
-    def /(d: Int) = Point(x / d, y / d)
-
-    def %(w: Int, h: Int) = Point((x + w) % w, (y + h) % h)
-}
-
-object Direction extends Enumeration {
-    type Direction = Value
-    val Left: Direction = new DirectionVal(Point(-1, 0), 37) {
-        override def opposite: DirectionVal = Right
-    }
-    val Right: DirectionVal = new DirectionVal(Point(1, 0), 39) {
-        override def opposite: DirectionVal = Left
-    }
-    val Up: DirectionVal = new DirectionVal(Point(0, -1), 38) {
-        override def opposite: DirectionVal = Down
-    }
-    val Down: DirectionVal = new DirectionVal(Point(0, 1), 40) {
-        override def opposite: DirectionVal = Up
-    }
-
-    /**
-      * Initializes a direction with a point reflecting the vector of the direction and its key code.
-      *
-      * @param direction the vector of the direction
-      * @param keyCode the key code belonging to the direction
-      */
-    abstract case class DirectionVal(direction: Point, keyCode: Int) extends super.Val() {
-        def opposite: DirectionVal
-    }
-
-    /**
-      * Converts the enum type `Direction` to the internal `DirectionVal` type.
-      *
-      * @param value a `Direction` value
-      * @return the enum item as `DirectionVal`
-      */
-    implicit def convert(value: Value): DirectionVal = value.asInstanceOf[DirectionVal]
-
-    private val keyMap: Map[Int, Direction] = Direction.values.toList.map(d => d.keyCode -> d).toMap
-
-    /**
-      * Returns the direction belonging to a key code. If the key code does not belong to a direction, `None` is returned.
-      *
-      * @param keyCode the key code for a given direction
-      * @return the `Direction`, possibly `None`
-      */
-    def byKeyCode(keyCode: Int): Option[Direction] = keyMap.get(keyCode)
-
-    /**
-      * Returns the opposite `Direction` for a given `Direction`
-      *
-      * @param d the direction
-      * @return the opposite direction
-      */
-    implicit def opposite(d: DirectionVal): Direction = d.opposite
-}
-
-import de.kappmeier.Direction._
 
 trait Entity
 
@@ -93,14 +34,14 @@ case class Food(p: Point) extends Entity with StaticElement {
     override def connects = Set.empty[Direction]
 
     def update(game: SnakeGame): Seq[StateTransition] =
-        Seq(MoveHead(game.direction()), EatFood(this), AppendSnake(game.player))
+        Seq(MoveHead(game.direction()), EatFood(this), AppendSnake(game.state.player))
 }
 
 case class SpecialFood(p: Point) extends Entity with StaticElement {
     override def connects = Set.empty[Direction]
 
     def update(game: SnakeGame): Seq[StateTransition] =
-        Seq(MoveHead(game.direction()), EatSpecialFood(this), AppendSnake(game.player, full = true))
+        Seq(MoveHead(game.direction()), EatSpecialFood(this), AppendSnake(game.state.player, full = true))
 }
 
 case class Body(p: Point, connects: Set[Direction]) extends Entity with StaticElement {
@@ -117,7 +58,7 @@ object Empty extends StaticElement with Entity {
     override def connects = Set.empty[Direction]
 
     def update(game: SnakeGame): Seq[StateTransition] =
-        Seq(MoveHead(game.direction()), AppendSnake(game.player), MoveSnake())
+        Seq(MoveHead(game.direction()), AppendSnake(game.state.player), MoveSnake())
 }
 
 /**
@@ -131,7 +72,7 @@ case class Player(p: Point, connects: Set[Direction]) extends Entity with Action
     }
 
     def this(p: Point, moveDirection: Direction) {
-        this(p, Set[Direction](opposite(moveDirection)))
+        this(p, Set[Direction](Direction.opposite(moveDirection)))
     }
 
     def update(game: SnakeGame): Seq[StateTransition] = Seq.empty
@@ -145,9 +86,10 @@ trait TimedEntity {
 
 trait SnakeEvent
 
-object Nothing extends SnakeEvent {
-
-}
+/**
+  * A simple event that indicates no action.
+  */
+object Nothing extends SnakeEvent
 
 trait ToEvent extends SnakeEvent {
     def applyTo(entity: Entity): (Entity, Seq[SnakeEvent])
@@ -162,14 +104,14 @@ trait WorldTransition extends StateTransition {
 
 case class MoveHead(d: Direction) extends WorldTransition {
     def updateWorld(game: SnakeGame) {
-        val newPlayerPos = (game.player.p + d.direction) % (60, 40)
-        game.player = new Player(newPlayerPos, d)
+        val newPlayerPos = (game.state.player.p + d.direction) % (60, 40)
+        game.state = game.state.copy(player = new Player(newPlayerPos, d))
     }
 }
 
 case class Death() extends StateTransition with WorldTransition {
     def updateWorld(game: SnakeGame) {
-        game.dead = true
+        game.state = game.state.copy(dead = true)
     }
 }
 
@@ -222,9 +164,10 @@ case class MoveSnake() extends StateTransition with WorldTransition {
 trait SnakeGame {
     // Step time in milliseconds
     val stepTime: Int
-    var snake: mutable.Queue[Body]
-    var dead: Boolean
-    var player: Player
+    val snake: mutable.Queue[Body]
+    //var dead: Boolean
+    //val player: Player
+    var state: SnakeGameState
 
     def time(): Int
 
@@ -282,21 +225,21 @@ case class SpecialFoodDisappearPeriod(food: SpecialFood, time: Int) extends Time
     }
 }
 
+case class SnakeGameState(player: Player, dead: Boolean)
+
 class SnakeGameImpl(level: String) extends SnakeGame {
-    override var snake = new mutable.Queue[Body]()
-    override var dead = false
+    override val snake = new mutable.Queue[Body]()
     override val stepTime = 100
 
     val rows = 40
     val cols = 60
 
-    override var player = new Player(cols / 2, rows / 2)
+    override var state = SnakeGameState(new Player(cols / 2, rows / 2), dead = false)
 
     val map = new mutable.HashMap[Point, StaticElement]()
 
     var frame = 0
     var turns = 0
-
 
     val initialFood: Point = freeLocation()
     val doorSize: Int = 3
@@ -361,7 +304,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     }
 
     def updateMove(): Unit = {
-        val transitions: Seq[StateTransition] = updateMove(player)
+        val transitions: Seq[StateTransition] = updateMove(state.player)
 
         transitions.foreach {
             case w: WorldTransition => w.updateWorld(this)
@@ -415,27 +358,6 @@ class SnakeGameImpl(level: String) extends SnakeGame {
       */
     def initLevel(): Unit = {
         wall.foreach(element => addElement(element.p, element.asInstanceOf[Wall]))
-    }
-
-    def initLevelFull(): Unit = {
-        for (i <- 1 until cols - 1) {
-            addWallElement(Point(i, 0), Set(Direction.Left, Direction.Right))
-            addWallElement(Point(i, rows - 1), Set(Direction.Left, Direction.Right))
-        }
-        for (i <- 1 until rows - 1) {
-            addWallElement(Point(0, i), Set(Direction.Up, Direction.Down))
-            addWallElement(Point(cols - 1, i), Set(Direction.Up, Direction.Down))
-        }
-        addWallElement(Point(0, 0), Set(Direction.Right, Direction.Down))
-        addWallElement(Point(cols - 1, 0), Set(Direction.Left, Direction.Down))
-        addWallElement(Point(0, rows - 1), Set(Direction.Right, Direction.Up))
-        addWallElement(Point(cols - 1, rows - 1), Set(Direction.Left, Direction.Up))
-    }
-
-    def addWallElement(p: Point, c: Set[Direction]): Unit = {
-        val wallElement = Wall(p, c)
-        wall.enqueue(wallElement)
-        addElement(p, wallElement)
     }
 
 }

@@ -1,10 +1,12 @@
-package de.kappmeier
+package de.kappmeier.asnarc.render
 
+import de.kappmeier.asnarc.AsnarcState._
+import de.kappmeier.asnarc.render.localization.AsnarcLocalization
+import de.kappmeier.asnarc.{Element, AsnarcState => _, _}
 import org.scalajs.dom
-import org.scalajs.dom.{CanvasRenderingContext2D, html}
+import org.scalajs.dom.html
 
 import scala.collection.immutable.HashMap
-import AsnarcState._
 
 /**
   * Structure containing the font style for text rendered.
@@ -18,7 +20,8 @@ case class RendererTextStyle(font: String, size: Int, color: String)
 /**
   * Draws the Asnarc game into a canvas.
   */
-class AsnarcJSRenderer(canvas: html.Canvas) {
+class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
+
     val drawColors: HashMap[String, String] = collection.immutable.HashMap[String, String](
         Food.getClass.getSimpleName -> "darkred",
         Wall.getClass.getSimpleName -> "black",
@@ -27,7 +30,7 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
         Player.getClass.getSimpleName -> "green"
     )
 
-    val renderer: CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    val renderer: dom.CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
     val gameOverFont: RendererTextStyle = RendererTextStyle("sans-serif", 20, "darkred")
     val informationStyle: RendererTextStyle = RendererTextStyle("sans-serif", 12, "black")
@@ -48,8 +51,6 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
     val drawSize: Int = 2 * drawRadius
     val size: Int = 2 * radius
 
-    var counter: Int = 1
-
     def render(snakeGame: SnakeGameImpl, asnarcState: AsnarcState) {
         renderer.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -61,7 +62,7 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
                 renderInfo(snakeGame)
             case GAME_OVER =>
                 renderMove(snakeGame)
-                renderDead(snakeGame)
+                renderGameOver(snakeGame)
             // restart the game
             case PAUSE => // continue the game
                 renderMove(snakeGame)
@@ -70,19 +71,13 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
         }
     }
 
-    def drawCenterText(snakeGame: SnakeGameImpl, text: String): Unit = {
-        renderer.textAlign = "center"
-        renderer.textBaseline = "middle"
-        renderer.fillText(text, snakeGame.cols * size / 2, snakeGame.rows * size / 2)
-    }
-
     def renderStart(snakeGame: SnakeGameImpl): Unit = {
         val color = drawColors.getOrElse(Wall.getClass.getSimpleName, "black")
         renderer.fillStyle = color
-        snakeGame.map.withFilter{ tuple => tuple._2.isInstanceOf[Wall] }.foreach{ tuple => fillElement(tuple._2) }
+        snakeGame.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
 
         switchStyle(infoFont)
-        drawCenterText(snakeGame, "Press button or click to start")
+        drawCenterText(snakeGame, loc.stateMessageStart)
     }
 
     def renderMove(snakeGame: SnakeGameImpl): Unit = {
@@ -93,36 +88,18 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
             fillElement(e)
         }
         renderer.fillStyle = drawColors(Player.getClass.getSimpleName)
-        fillElement(snakeGame.player)
+        fillElement(snakeGame.state.player)
     }
 
-    def fillField(location: Point): Unit = {
-        val x = location.x * size
-        val y = location.y * size
-        renderer.fillRect(x + border, y + border, drawSize, drawSize)
-    }
-
-    def fillFull(location: Point): Unit = {
-        val x = location.x * size
-        val y = location.y * size
-        renderer.fillRect(x, y, size, size)
-    }
-
-    def renderInfo(snakeGame: SnakeGameImpl): Unit = {
-        val len: Int = snakeGame.snake.size + 1
-        switchStyle(informationStyle)
-        renderer.textAlign = "left"
-        renderer.textBaseline = "top"
-        val formatString = "Länge: %d Punkte: %d Zeit pro Nahrung: %d Kurven pro Nahrung: %d"
-        val averageTime = snakeGame.frame / len
-        val averageTurns = snakeGame.turns / len
-        val infoString = formatString.format(len, 0, averageTime, averageTurns)
-        renderer.fillText(infoString, border, snakeGame.rows * size + border)
-        renderer.textAlign = "right"
-        val locString = "Position: (%d,%d)".format(snakeGame.player.p.x, snakeGame.player.p.y)
-        renderer.fillText(locString, size * snakeGame.cols - border, snakeGame.rows * size + border)
-    }
-
+    /**
+      * Fills the square block of an [[Element]] of the Asnarc game. For a block standing alone only the interior is filled,
+      * but when a block is connected with the neighbor block in a specific direction, the border in this direction is also filled.
+      *
+      * Whether the block is connected with a neighbor is not defined by two block being actually neighbors. Instead, it
+      * is enough that the `connects` property of the [[Element]] is set.
+      *
+      * @param location the location of the [[Element]] that is filled
+      */
     def fillElement(location: Element): Unit = {
         val x = if (location.connects contains Direction.Left) location.p.x * size else location.p.x * size + border
         val y = if (location.connects contains Direction.Up) location.p.y * size else location.p.y * size + border
@@ -131,17 +108,55 @@ class AsnarcJSRenderer(canvas: html.Canvas) {
         renderer.fillRect(x, y, w, h)
     }
 
-    def renderDead(snakeGame: SnakeGameImpl): Unit = {
-        switchStyle(gameOverFont)
-        drawCenterText(snakeGame, "Game Over")
+    /**
+      * Displays the status message below the game canvas. The status contains some statistics (current length, points,
+      * average turns, ...) and the current position of the head.
+      *
+      * @param snakeGame the game canvas
+      */
+    def renderInfo(snakeGame: SnakeGameImpl): Unit = {
+        val len: Int = snakeGame.snake.size + 1
+        switchStyle(informationStyle)
+        renderer.textAlign = "left"
+        renderer.textBaseline = "top"
+        val averageTime = snakeGame.frame / len
+        val averageTurns = snakeGame.turns / len
+        val infoString = loc.statusText.format(len, 0, averageTime, averageTurns)
+        renderer.fillText(infoString, border, snakeGame.rows * size + border)
+        renderer.textAlign = "right"
+        val locString = loc.statusPosition.format(snakeGame.state.player.p.x, snakeGame.state.player.p.y)
+        renderer.fillText(locString, size * snakeGame.cols - border, snakeGame.rows * size + border)
     }
 
+    /**
+      * Displays the pause message on top of the game.
+      *
+      * @param snakeGame the board canvas
+      */
     def renderPause(snakeGame: SnakeGameImpl): Unit = {
         switchStyle(infoFont)
-        drawCenterText(snakeGame, "Pause")
+        drawCenterText(snakeGame, loc.stateMessagePause)
     }
 
+    /**
+      * Displays the game over message on top of the game.
+      *
+      * @param snakeGame the board canvas
+      */
     def renderGameOver(snakeGame: SnakeGameImpl): Unit = {
+        switchStyle(gameOverFont)
+        drawCenterText(snakeGame, loc.stateMessageGameOver)
+    }
 
+    /**
+      * Draws a text in the middle of the game area. The text is written in the current style and color.
+      *
+      * @param snakeGame the board canvas on which the text is drawn
+      * @param text the text
+      */
+    def drawCenterText(snakeGame: SnakeGameImpl, text: String): Unit = {
+        renderer.textAlign = "center"
+        renderer.textBaseline = "middle"
+        renderer.fillText(text, snakeGame.cols * size / 2, snakeGame.rows * size / 2)
     }
 }

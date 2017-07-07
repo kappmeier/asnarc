@@ -1,4 +1,4 @@
-package de.kappmeier
+package de.kappmeier.asnarc
 
 import scala.collection.immutable.{HashMap, Set}
 import Direction._
