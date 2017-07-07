@@ -55,16 +55,16 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
         renderer.clearRect(0, 0, canvas.width, canvas.height)
 
         asnarcState match {
-            case STARTED => // start the game
+            case Started => // start the game
                 renderStart(snakeGame)
-            case RUNNING =>
+            case Running =>
                 renderMove(snakeGame)
                 renderInfo(snakeGame)
-            case GAME_OVER =>
+            case GameOver =>
                 renderMove(snakeGame)
                 renderGameOver(snakeGame)
             // restart the game
-            case PAUSE => // continue the game
+            case Pause => // continue the game
                 renderMove(snakeGame)
                 renderPause(snakeGame)
                 renderInfo(snakeGame)

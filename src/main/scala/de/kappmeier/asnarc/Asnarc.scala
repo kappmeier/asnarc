@@ -246,7 +246,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
 
     var lg = new LevelGenerator()
 
-    val wall: mutable.Queue[Element] = lg.generate(level)
+    val wall: mutable.Queue[Element] = lg.generateBoard(level)
     initLevel()
 
     addElement(initialFood, Food(initialFood))
@@ -294,15 +294,6 @@ class SnakeGameImpl(level: String) extends SnakeGame {
       *
       */
 
-    /**
-      * A null object for empty transition lists.
-      */
-    private val FakeEntity: TimedEntity = new TimedEntity {
-        override def update(game: SnakeGame) = Nil
-
-        override val time: Int = frame + 1
-    }
-
     def updateMove(): Unit = {
         val transitions: Seq[StateTransition] = updateMove(state.player)
 
@@ -311,7 +302,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
         }
 
         // TODO transform this special objects into general entities
-        while (timedTransitions.headOption.getOrElse(FakeEntity).time.equals(time())) {
+        while (timedTransitions.headOption.getOrElse(SnakeGameImpl.FakeEntity).time.equals(time())) {
             timedTransitions.dequeue().update(this)
         }
     }
@@ -359,5 +350,18 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     def initLevel(): Unit = {
         wall.foreach(element => addElement(element.p, element.asInstanceOf[Wall]))
     }
+
+}
+
+object SnakeGameImpl {
+    /**
+      * A null object for empty transition lists.
+      */
+    private val FakeEntity: TimedEntity = new TimedEntity {
+        override def update(game: SnakeGame) = Nil
+
+        override val time: Int = Int.MaxValue
+    }
+
 
 }

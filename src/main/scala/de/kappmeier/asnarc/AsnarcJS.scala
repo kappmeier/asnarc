@@ -4,8 +4,7 @@ import de.kappmeier.asnarc.Direction.Direction
 import de.kappmeier.asnarc.render.AsnarcJSRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 
-import scala.scalajs.js.annotation.JSExport
-import scala.scalajs.js.annotation.JSExportTopLevel
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -14,9 +13,8 @@ import org.scalajs.dom.html
  */
 object AsnarcState extends Enumeration {
     type AsnarcState = Value
-    val RUNNING, STARTED, GAME_OVER, PAUSE = Value
+    val Running, Started, GameOver, Pause = Value
 }
-import AsnarcState._
 
 /**
  * The ScalaJS export for Asnarc. Runs the game loop, grabs character input and renders the game.
@@ -25,7 +23,7 @@ import AsnarcState._
  */
 @JSExportTopLevel("AsnarcJS")
 object AsnarcJS {
-    var asnarcState = STARTED
+    var asnarcState = AsnarcState.Started
     var snakeGame: SnakeGameImpl = new SnakeGameImpl("0,0, ")
 
     /**
@@ -33,7 +31,7 @@ object AsnarcJS {
      */
     def initGame(level: String): Unit = {
         snakeGame = new SnakeGameImpl(level)
-        asnarcState = RUNNING
+        asnarcState = AsnarcState.Running
     }
 
     @JSExport
@@ -43,11 +41,11 @@ object AsnarcJS {
         initGame(level)
 
         scala.scalajs.js.timers.setInterval(100) {
-            if (asnarcState == RUNNING) {
+            if (asnarcState == AsnarcState.Running) {
                 snakeGame.nextFrame()
                 snakeGame.updateMove()
                 if (snakeGame.state.dead) {
-                    asnarcState = GAME_OVER
+                    asnarcState = AsnarcState.GameOver
                 }
             }
 
@@ -56,10 +54,10 @@ object AsnarcJS {
 
         canvas.onclick = (e: dom.MouseEvent) => {
             asnarcState match {
-                case STARTED => initGame("0,0, ")
-                case RUNNING => asnarcState = PAUSE
-                case PAUSE => asnarcState = RUNNING
-                case GAME_OVER =>
+                case AsnarcState.Started => initGame("0,0, ")
+                case AsnarcState.Running => asnarcState = AsnarcState.Pause
+                case AsnarcState.Pause => asnarcState = AsnarcState.Running
+                case AsnarcState.GameOver =>
             }
         }
 
@@ -72,17 +70,17 @@ object AsnarcJS {
                 }
             }
             asnarcState match {
-                case STARTED => initGame(level)
-                case RUNNING =>
+                case AsnarcState.Started => initGame(level)
+                case AsnarcState.Running =>
                     updateDirection(e.keyCode)
 
                     if (pauseKeyCodes.contains(e.keyCode)) {
-                        asnarcState = PAUSE
+                        asnarcState = AsnarcState.Pause
                     }
-                case GAME_OVER => initGame(level)
-                case PAUSE =>
+                case AsnarcState.GameOver => initGame(level)
+                case AsnarcState.Pause =>
                     updateDirection(e.keyCode)
-                    asnarcState = RUNNING
+                    asnarcState = AsnarcState.Running
             }
         }
     }
