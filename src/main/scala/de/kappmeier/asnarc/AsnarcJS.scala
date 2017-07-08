@@ -24,7 +24,7 @@ object AsnarcState extends Enumeration {
 @JSExportTopLevel("AsnarcJS")
 object AsnarcJS {
     var asnarcState = AsnarcState.Started
-    var snakeGame: SnakeGameImpl = new SnakeGameImpl("0,0, ")
+    var snakeGame: SnakeGameImpl = new SnakeGameImpl(LevelGenerator.EmptyLevel)
 
     /**
      * Initializes Asnarc for a new round.
@@ -54,7 +54,7 @@ object AsnarcJS {
 
         canvas.onclick = (e: dom.MouseEvent) => {
             asnarcState match {
-                case AsnarcState.Started => initGame("0,0, ")
+                case AsnarcState.Started => initGame(LevelGenerator.EmptyLevel)
                 case AsnarcState.Running => asnarcState = AsnarcState.Pause
                 case AsnarcState.Pause => asnarcState = AsnarcState.Running
                 case AsnarcState.GameOver =>

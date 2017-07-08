@@ -246,7 +246,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
 
     var lg = new LevelGenerator()
 
-    val wall: mutable.Queue[Element] = lg.generateBoard(level)
+    val wall: mutable.Queue[Element] = lg.generateBoard64(level)
     initLevel()
 
     addElement(initialFood, Food(initialFood))
