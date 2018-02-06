@@ -241,7 +241,6 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     var frame = 0
     var turns = 0
 
-    val initialFood: Point = freeLocation()
     val doorSize: Int = 3
 
     var lg = new LevelGenerator()
@@ -249,6 +248,7 @@ class SnakeGameImpl(level: String) extends SnakeGame {
     val wall: mutable.Queue[Element] = lg.generateBoard64(level)
     initLevel()
 
+    val initialFood: Point = freeLocation()
     addElement(initialFood, Food(initialFood))
 
     var specialFood: Option[Point] = None
