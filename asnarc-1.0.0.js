@@ -6600,10 +6600,10 @@ function $c_Lde_kappmeier_asnarc_SnakeGameImpl() {
   this.map$1 = null;
   this.frame$1 = 0;
   this.turns$1 = 0;
-  this.initialFood$1 = null;
   this.doorSize$1 = 0;
   this.lg$1 = null;
   this.wall$1 = null;
+  this.initialFood$1 = null;
   this.specialFood$1 = null;
   this.timedTransitions$1 = null;
   this.d$1 = null;
@@ -6716,11 +6716,11 @@ $c_Lde_kappmeier_asnarc_SnakeGameImpl.prototype.init___T = (function(level) {
   this.map$1 = new $c_scm_HashMap().init___();
   this.frame$1 = 0;
   this.turns$1 = 0;
-  this.initialFood$1 = this.freeLocation__Lde_kappmeier_asnarc_Point();
   this.doorSize$1 = 3;
   this.lg$1 = new $c_Lde_kappmeier_asnarc_LevelGenerator().init___();
   this.wall$1 = this.lg$1.generateBoard64__T__scm_Queue(level);
   this.initLevel__V();
+  this.initialFood$1 = this.freeLocation__Lde_kappmeier_asnarc_Point();
   var p = this.initialFood$1;
   var element = new $c_Lde_kappmeier_asnarc_Food().init___Lde_kappmeier_asnarc_Point(this.initialFood$1);
   var this$1 = this.map$1;
