@@ -4,4 +4,7 @@ class Test extends AsnarcSpec {
   "a test" should "pass" in {
 
   }
+  "a test" should "fail" in {
+    throw new IllegalArgumentException()
+  }
 }
