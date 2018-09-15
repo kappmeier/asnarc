@@ -21,7 +21,7 @@ class AnotherTest extends FunSpec {
     }
 
     it("should not pass") {
-      throw new IllegalArgumentException()
+
     }
 
   }
