@@ -1,10 +1,11 @@
 package de.kappmeier.asnarc
 
 class Test extends AsnarcSpec {
-  "a test" should "pass" in {
+  "a first test" should "pass" in {
 
   }
-  "a test" should "fail" in {
+
+  "another test" should "also pass" in {
 
   }
 }
