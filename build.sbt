@@ -7,7 +7,7 @@ version := "1.0"
 scalaVersion := "2.12.6"
 
 // This is an application with a main method
-scalaJSUseMainModuleInitializer := true
+scalaJSUseMainModuleInitializer := false
 
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "0.9.6",
