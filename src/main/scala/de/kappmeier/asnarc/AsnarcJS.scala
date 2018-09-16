@@ -1,6 +1,8 @@
 package de.kappmeier.asnarc
 
-import de.kappmeier.asnarc.Direction.Direction
+import de.kappmeier.asnarc.board.Direction
+import de.kappmeier.asnarc.board.Direction.Direction
+import de.kappmeier.asnarc.game.SnakeGameImpl
 import de.kappmeier.asnarc.render.AsnarcJSRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 

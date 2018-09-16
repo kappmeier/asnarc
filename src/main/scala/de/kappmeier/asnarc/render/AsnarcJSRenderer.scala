@@ -1,8 +1,10 @@
 package de.kappmeier.asnarc.render
 
 import de.kappmeier.asnarc.AsnarcState._
+import de.kappmeier.asnarc.board.Direction
+import de.kappmeier.asnarc.elements._
+import de.kappmeier.asnarc.game.SnakeGameImpl
 import de.kappmeier.asnarc.render.localization.AsnarcLocalization
-import de.kappmeier.asnarc.{Element, AsnarcState => _, _}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
