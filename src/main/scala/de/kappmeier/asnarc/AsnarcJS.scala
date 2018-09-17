@@ -2,7 +2,7 @@ package de.kappmeier.asnarc
 
 import de.kappmeier.asnarc.board.Direction
 import de.kappmeier.asnarc.board.Direction.Direction
-import de.kappmeier.asnarc.game.SnakeGameImpl
+import de.kappmeier.asnarc.game.AsnarcGameImpl
 import de.kappmeier.asnarc.render.AsnarcJSRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 
@@ -26,13 +26,13 @@ object AsnarcState extends Enumeration {
 @JSExportTopLevel("AsnarcJS")
 object AsnarcJS {
     var asnarcState = AsnarcState.Started
-    var snakeGame: SnakeGameImpl = new SnakeGameImpl(LevelGenerator.EmptyLevel)
+    var snakeGame: AsnarcGameImpl = new AsnarcGameImpl(LevelGenerator.EmptyLevel)
 
     /**
      * Initializes Asnarc for a new round.
      */
     def initGame(level: String): Unit = {
-        snakeGame = new SnakeGameImpl(level)
+        snakeGame = new AsnarcGameImpl(level)
         asnarcState = AsnarcState.Running
     }
 
