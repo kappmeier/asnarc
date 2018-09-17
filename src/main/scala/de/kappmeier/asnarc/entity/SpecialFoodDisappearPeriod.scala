@@ -1,7 +1,7 @@
 package de.kappmeier.asnarc.entity
 
 import de.kappmeier.asnarc.elements.SpecialFood
-import de.kappmeier.asnarc.game.{SnakeGame, TimeConst}
+import de.kappmeier.asnarc.game.{AsnarcGame, TimeConst}
 import de.kappmeier.asnarc.transitions.StateTransition
 
 /**
@@ -9,11 +9,11 @@ import de.kappmeier.asnarc.transitions.StateTransition
   */
 case class SpecialFoodDisappearPeriod(food: SpecialFood, time: Int) extends TimedEntity {
 
-  def update(game: SnakeGame): Seq[StateTransition] = {
-    val potentialFood = game.elementAt(food.p)
+  def update(game: AsnarcGame): Seq[StateTransition] = {
+    val potentialFood = game.board.elementAt(food.p)
     if (potentialFood == food) {
       val appearAt = game.time() + (TimeConst.TimeBetweenSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
-      game.removeElement(food.p)
+      game.board = game.board.removeElement(food.p)
       game.addTimer(SpecialFoodWaitPeriod(appearAt))
     }
     Seq.empty
