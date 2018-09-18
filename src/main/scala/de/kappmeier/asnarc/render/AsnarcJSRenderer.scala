@@ -27,9 +27,9 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
   val drawColors: HashMap[String, String] = collection.immutable.HashMap[String, String](
     Food.getClass.getSimpleName -> "darkred",
     Wall.getClass.getSimpleName -> "black",
-    Body.getClass.getSimpleName -> "darkgreen",
+    SnakeBody.getClass.getSimpleName -> "darkgreen",
     SpecialFood.getClass.getSimpleName -> "orange",
-    Player.getClass.getSimpleName -> "green"
+    SnakeHead.getClass.getSimpleName -> "green"
   )
 
   val renderer: dom.CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -89,8 +89,8 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
       renderer.fillStyle = color
       fillElement(e)
     }
-    renderer.fillStyle = drawColors(Player.getClass.getSimpleName)
-    fillElement(snakeGame.state.player)
+    renderer.fillStyle = drawColors(SnakeHead.getClass.getSimpleName)
+    fillElement(snakeGame.state.player.head)
   }
 
   /**
@@ -117,7 +117,7 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     * @param snakeGame the game canvas
     */
   def renderInfo(snakeGame: AsnarcGameImpl): Unit = {
-    val len: Int = snakeGame.player.size + 1
+    val len: Int = snakeGame.player.body.size + 1
     switchStyle(informationStyle)
     renderer.textAlign = "left"
     renderer.textBaseline = "top"
@@ -126,7 +126,7 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     val infoString = loc.statusText.format(len, 0, averageTime, averageTurns)
     renderer.fillText(infoString, border, snakeGame.board.rows * size + border)
     renderer.textAlign = "right"
-    val locString = loc.statusPosition.format(snakeGame.state.player.p.x, snakeGame.state.player.p.y)
+    val locString = loc.statusPosition.format(snakeGame.state.player.head.p.x, snakeGame.state.player.head.p.y)
     renderer.fillText(locString, size * snakeGame.board.cols - border, snakeGame.board.rows * size + border)
   }
 

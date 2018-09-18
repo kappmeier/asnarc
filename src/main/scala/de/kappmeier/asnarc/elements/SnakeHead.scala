@@ -2,13 +2,10 @@ package de.kappmeier.asnarc.elements
 
 import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.board.{Direction, Point}
-import de.kappmeier.asnarc.entity.Entity
-import de.kappmeier.asnarc.game.AsnarcGame
-import de.kappmeier.asnarc.transitions.StateTransition
 
 import scala.collection.immutable.Set
 
-case class Player(p: Point, connects: Set[Direction]) extends Entity with ActionElement {
+case class SnakeHead(p: Point, connects: Set[Direction]) extends Element {
   def this(x: Int, y: Int) {
     this(Point(x, y), Set.empty[Direction])
   }
@@ -16,6 +13,4 @@ case class Player(p: Point, connects: Set[Direction]) extends Entity with Action
   def this(p: Point, moveDirection: Direction) {
     this(p, Set[Direction](Direction.opposite(moveDirection)))
   }
-
-  def update(game: AsnarcGame): Seq[StateTransition] = Seq.empty
 }

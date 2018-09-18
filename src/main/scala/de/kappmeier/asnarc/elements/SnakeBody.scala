@@ -5,8 +5,8 @@ import de.kappmeier.asnarc.board.Point
 
 import scala.collection.immutable.Set
 
-object Empty extends Element {
-  override def p = Point(-1, -1)
-
-  override def connects = Set.empty[Direction]
+case class SnakeBody(p: Point, connects: Set[Direction]) extends Element {
+  def this(e: SnakeHead, connectsAlso: Direction) {
+    this(e.p, e.connects + connectsAlso)
+  }
 }
