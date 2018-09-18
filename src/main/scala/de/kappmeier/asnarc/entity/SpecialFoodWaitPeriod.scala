@@ -10,6 +10,7 @@ case class SpecialFoodWaitPeriod(time: Int) extends TimedEntity {
     */
   def update(game: AsnarcGame): Seq[StateTransition] = {
     val foodPosition = game.board.freeLocation()
+    game.specialFood = Some(foodPosition)
     val specialFood = SpecialFood(foodPosition)
 
     val disappearAt = game.time() + (TimeConst.TimeForSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]

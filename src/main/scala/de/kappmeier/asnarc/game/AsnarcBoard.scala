@@ -2,12 +2,12 @@ package de.kappmeier.asnarc.game
 
 import de.kappmeier.asnarc.LevelGenerator
 import de.kappmeier.asnarc.board.Point
-import de.kappmeier.asnarc.elements.{Element, Empty, StaticElement, Wall}
+import de.kappmeier.asnarc.elements.{Element, Empty, Wall}
 
 import scala.collection.mutable
 import scala.util.Random
 
-class AsnarcBoard(val map: scala.collection.immutable.Map[Point, StaticElement]) {
+class AsnarcBoard(val map: scala.collection.immutable.Map[Point, Element]) {
 
 
   def this(level: String) {
@@ -18,7 +18,7 @@ class AsnarcBoard(val map: scala.collection.immutable.Map[Point, StaticElement])
   val cols = 60
 
   // Board data
-  def addElement(p: Point, element: StaticElement): AsnarcBoard = {
+  def addElement(p: Point, element: Element): AsnarcBoard = {
     new AsnarcBoard(map + (p -> element))
   }
 
@@ -26,7 +26,7 @@ class AsnarcBoard(val map: scala.collection.immutable.Map[Point, StaticElement])
     new AsnarcBoard(map - p)
   }
 
-  def elementAt(p: Point): StaticElement = map.getOrElse(p, Empty)
+  def elementAt(p: Point): Element = map.getOrElse(p, Empty)
 
   def outOfBounds(p: Point): Boolean = {
     map.contains(p) && map(p).isInstanceOf[Wall]
@@ -42,8 +42,8 @@ class AsnarcBoard(val map: scala.collection.immutable.Map[Point, StaticElement])
 }
 
 object AsnarcBoard {
-  private def getFromLevel(level: String): scala.collection.immutable.Map[Point, StaticElement] = {
-    val mutableMap: scala.collection.mutable.HashMap[Point, StaticElement] = new mutable.HashMap[Point, StaticElement]()
+  private def getFromLevel(level: String): scala.collection.immutable.Map[Point, Element] = {
+    val mutableMap: scala.collection.mutable.HashMap[Point, Element] = new mutable.HashMap[Point, Element]()
 
     // Init
     val levelGenerator = new LevelGenerator()

@@ -12,5 +12,6 @@ case class EatSpecialFood(f: SpecialFood) extends StateTransition with WorldTran
     // Place a new timer
     val appearAt = game.time() + (TimeConst.TimeBetweenSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
     game.addTimer(SpecialFoodWaitPeriod(appearAt))
+    game.specialFood = None
   }
 }

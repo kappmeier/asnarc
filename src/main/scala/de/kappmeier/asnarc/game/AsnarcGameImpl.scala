@@ -3,25 +3,25 @@ package de.kappmeier.asnarc.game
 import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.board.{Direction, Point}
 import de.kappmeier.asnarc.elements._
-import de.kappmeier.asnarc.entity.{SpecialFoodWaitPeriod, TimedEntity}
+import de.kappmeier.asnarc.entity._
 import de.kappmeier.asnarc.transitions.{StateTransition, WorldTransition}
 
+import scala.collection.immutable.Set
 import scala.collection.mutable
 import scala.concurrent.duration.{Duration, MILLISECONDS, SECONDS}
 import scala.math.Ordering
 
 class AsnarcGameImpl(level: String) extends AsnarcGame {
-  override val player = new mutable.Queue[Body]()
+  var board = new AsnarcBoard(level)
+  override val player = new Player(board.cols / 2, board.rows / 2, Set.empty[Direction])
   override val stepTime = 100
 
-  var board = new AsnarcBoard(level)
-
-  override var state = AsnarcState(new Player(board.cols / 2, board.rows / 2), dead = false)
+  override var state = AsnarcState(player, dead = false)
 
   var frame = 0
   var turns = 0
 
-  val initialFood: Point = board.freeLocation()
+  override var initialFood: Point = board.freeLocation()
   board = board.addElement(initialFood, Food(initialFood))
 
   var specialFood: Option[Point] = None
@@ -52,7 +52,10 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     */
 
   def updateMove(): Unit = {
-    val transitions: Seq[StateTransition] = updateMove(state.player)
+    val food: Food = board.elementAt(initialFood).asInstanceOf[Food]
+    val specialFood: Entity = if (this.specialFood.isDefined) board.elementAt(this.specialFood.get).asInstanceOf[Entity] else Nothing
+
+    val transitions: Seq[StateTransition] = updateMove(food) ++ updateMove(specialFood) ++ updateMove(state.player)
 
     transitions.foreach {
       case w: WorldTransition => w.updateWorld(this)
@@ -64,9 +67,8 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     }
   }
 
-  def updateMove(element: ActionElement): Seq[StateTransition] = {
-    val at: StaticElement = board.elementAt(element.p)
-    at.update(this)
+  def updateMove(entity: Entity): Seq[StateTransition] = {
+    entity.update(this)
   }
 
   def isIllegal(p: Point): Boolean = board.outOfBounds(p) || hitSelf(p)
@@ -91,7 +93,7 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     */
 
   def hitSelf(p: Point): Boolean = {
-    player.exists(element => element.p == p)
+    player.body.exists(element => element.p == p)
   }
 
 

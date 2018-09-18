@@ -14,6 +14,7 @@ case class SpecialFoodDisappearPeriod(food: SpecialFood, time: Int) extends Time
     if (potentialFood == food) {
       val appearAt = game.time() + (TimeConst.TimeBetweenSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
       game.board = game.board.removeElement(food.p)
+      game.specialFood = None
       game.addTimer(SpecialFoodWaitPeriod(appearAt))
     }
     Seq.empty

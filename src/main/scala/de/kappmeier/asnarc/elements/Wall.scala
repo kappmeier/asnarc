@@ -8,8 +8,4 @@ import de.kappmeier.asnarc.transitions.{Death, StateTransition}
 
 import scala.collection.immutable.Set
 
-case class Wall(p: Point, connects: Set[Direction]) extends Entity with StaticElement {
-  def update(game: AsnarcGame): Seq[StateTransition] = {
-    Seq(Death())
-  }
-}
+case class Wall(p: Point, connects: Set[Direction]) extends Element
