@@ -9,32 +9,21 @@ import de.kappmeier.asnarc.transitions.{StateTransition, WorldTransition}
 import scala.collection.immutable.{HashSet, Set}
 import scala.collection.mutable
 import scala.concurrent.duration.{Duration, MILLISECONDS, SECONDS}
-import scala.math.Ordering
 
 class AsnarcGameImpl(level: String) extends AsnarcGame {
-  var board = new AsnarcBoard(level)
-  override val player = new Player(board.cols / 2, board.rows / 2, Set.empty[Direction])
   override val stepTime = 100
 
   /** Collection of all entities in the game. To be moved to state. */
-  override var entities: HashSet[Entity] = new HashSet()
-  override var state = AsnarcWorld(player, List(), dead = false)
-
-  var frame = 0
-  var turns = 0
-
-  val initialFood: Food = Food(board.freeLocation())
-  board = board.addElement(initialFood)
-  entities = entities + initialFood
-
-  def timedElementOrder(te: TimedEntity): Int = -te.time
-
-  val timedTransitions: mutable.PriorityQueue[TimedEntity] = mutable.PriorityQueue[TimedEntity]()(Ordering.by(timedElementOrder))
-
+  private val createdBoard = new AsnarcBoard(level)
+  private val player = new Player(createdBoard.cols / 2, createdBoard.rows / 2, Set.empty[Direction])
   // Init the game with the special food
-  entities = entities + new SpecialFoodSpawnTimer((TimeConst.TimeBetweenSpecialFood.toMillis / stepTime).asInstanceOf[Int])
-  entities = entities + player
+  private val initialFood: Food = Food(createdBoard.freeLocation())
+  private val createdEntities: HashSet[Entity] = HashSet(initialFood,
+    new SpecialFoodSpawnTimer((TimeConst.TimeBetweenSpecialFood.toMillis / stepTime).asInstanceOf[Int]), player)
+  override var state = AsnarcWorld(createdBoard, player, createdEntities, dead = false)
 
+  state = state.copy(board = state.board.addElement(initialFood),
+    entities = state.entities + initialFood)
 
   /**
     *
@@ -42,10 +31,6 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     *
     */
   def direction(): Direction = d
-
-  def addTimer(te: TimedEntity): Unit = {
-    timedTransitions += te
-  }
 
   def time(): Int = frame
 
@@ -56,23 +41,19 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     */
 
   def updateMove(): Unit = {
-    val transitions: Seq[StateTransition] = entities.map(e => updateMove(e)).flatten.toSeq
+    val transitions: Seq[StateTransition] = state.entities.toSeq.flatMap(e => updateMove(e))
 
     transitions.foreach {
       case w: WorldTransition => w.updateWorld(this)
     }
 
-    // TODO transform this special objects into general entities
-    while (timedTransitions.headOption.getOrElse(AsnarcGameImpl.FakeEntity).time.equals(time())) {
-      timedTransitions.dequeue().update(this)
-    }
   }
 
   def updateMove(entity: Entity): Seq[StateTransition] = {
     entity.update(this)
   }
 
-  def isIllegal(p: Point): Boolean = board.outOfBounds(p) || hitSelf(p)
+  def isIllegal(p: Point): Boolean = state.board.outOfBounds(p) || hitSelf(p)
 
   var d = Direction.Left
   val keys = new mutable.Queue[Direction]
@@ -101,15 +82,6 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
 }
 
 object AsnarcGameImpl {
-  /**
-    * A null object for empty transition lists.
-    */
-  private val FakeEntity: TimedEntity = new TimedEntity {
-    override def update(game: AsnarcGame) = Nil
-
-    override val time: Int = Int.MaxValue
-  }
-
 }
 
 object TimeConst {

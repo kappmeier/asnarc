@@ -11,7 +11,7 @@ case class ReplaceEntity(toRemove: Entity, newEntity: Entity) extends StateTrans
     * @return
     */
   override def updateWorld(game: AsnarcGame): AsnarcWorld = {
-    game.entities = game.entities.-(toRemove).+(newEntity)
+    game.state = game.state.copy(entities = game.state.entities - toRemove + newEntity)
     game.state
   }
 }

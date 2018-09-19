@@ -6,10 +6,17 @@ import de.kappmeier.asnarc.elements._
 import de.kappmeier.asnarc.game.AsnarcGame
 import de.kappmeier.asnarc.transitions._
 
-import scala.collection.immutable.Set
-import scala.collection.mutable
+import scala.collection.immutable.{Queue, Set}
 
-class Player(p: Point, connects: Set[Direction]) extends Entity {
+class Player(val head: SnakeHead, val body: Queue[SnakeBody]) extends Entity {
+  def this(p: Point, connects: Set[Direction]) {
+    this(new SnakeHead(p, connects), Queue.empty)
+  }
+
+  def this(p: Point, moveDirection: Direction, body: Queue[SnakeBody]) {
+    this(new SnakeHead(p, Set[Direction](Direction.opposite(moveDirection))), body)
+  }
+
   def this(x: Int, y: Int, connects: Set[Direction]) {
     this(Point(x, y), connects)
   }
@@ -17,10 +24,6 @@ class Player(p: Point, connects: Set[Direction]) extends Entity {
   def this(p: Point, moveDirection: Direction) {
     this(p, Set[Direction](Direction.opposite(moveDirection)))
   }
-
-  val body: mutable.Queue[SnakeBody] = new mutable.Queue[SnakeBody]()
-
-  val head: SnakeHead = new SnakeHead(p, connects)
 
   /**
     * When the field is empty, the snake moves on. When there is a wall or an element of the snake itself, it
@@ -30,13 +33,24 @@ class Player(p: Point, connects: Set[Direction]) extends Entity {
     * @return the list of state transitions that should be applied to the game world
     */
   override def update(game: AsnarcGame): Seq[StateTransition] = {
-    val elementBelow: Element = game.board.elementAt(head.p)
+    val nextElement: Element = game.state.board.elementAt(Player.nextPos(game))
 
-    elementBelow match {
+    nextElement match {
       case _: Wall => Seq(Death())
       case _: SnakeBody => Seq(Death())
       case _: Food => Seq(MoveHead(game.direction()), AppendSnake(game.state.player))
-      case _ => Seq(MoveHead(game.direction()), AppendSnake(game.state.player), MoveSnake())
+      case _: SpecialFood => Seq(MoveHead(game.direction()), AppendSnake(game.state.player, full = true))
+      case _ => Seq(MoveHead(game.direction()), MoveSnake(game.state.player.head))
     }
   }
+
+
+  override def toString = s"Player($head, $body)"
+}
+
+object Player {
+  def nextPos(game: AsnarcGame): Point = {
+    (game.state.player.head.p + game.direction().direction) % (60, 40)
+  }
+
 }

@@ -19,7 +19,7 @@ case class SpecialFood(p: Point, removeAt: Int) extends SingleElementEntity {
     */
   override def update(game: AsnarcGame): Seq[StateTransition] = {
     if (game.state.player.head.p == p) {
-      Seq(EatSpecialFood(this), AppendSnake(game.state.player, full = true))
+      Seq(EatSpecialFood(this))
     } else if (game.time() == removeAt) {
       Seq(RemoveEntity(this, Seq(this)))
     } else Nil
