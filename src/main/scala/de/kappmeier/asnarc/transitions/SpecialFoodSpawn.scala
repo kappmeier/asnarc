@@ -11,13 +11,13 @@ case class SpecialFoodSpawn() extends StateTransition with WorldTransition {
     * @return
     */
   override def updateWorld(game: AsnarcGame): AsnarcWorld = {
-    val foodPosition = game.board.freeLocation()
+    val foodPosition = game.state.board.freeLocation()
 
     val disappearAt = game.time() + (TimeConst.TimeForSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
     val specialFood = SpecialFood(foodPosition, disappearAt)
 
-    game.board = game.board.addElement(specialFood)
-    game.entities = game.entities + (specialFood)
+    game.state = game.state.copy(board = game.state.board.addElement(specialFood),
+    entities = game.state.entities + specialFood)
 
     game.state
   }

@@ -3,7 +3,7 @@ package de.kappmeier.asnarc.elements
 import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.board.Point
 import de.kappmeier.asnarc.game.AsnarcGame
-import de.kappmeier.asnarc.transitions.{AppendSnake, EatFood, StateTransition}
+import de.kappmeier.asnarc.transitions.{EatFood, StateTransition}
 
 import scala.collection.immutable.Set
 
@@ -17,7 +17,7 @@ case class Food(p: Point) extends SingleElementEntity {
 
   override def update(game: AsnarcGame): Seq[StateTransition] = {
     if (game.state.player.head.p == p) {
-      Seq(EatFood(this), AppendSnake(game.state.player))
+      Seq(EatFood(this))
     } else Nil
   }
 }

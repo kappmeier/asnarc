@@ -7,10 +7,13 @@ import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld}
 
 case class MoveHead(d: Direction) extends WorldTransition {
   override def updateWorld(game: AsnarcGame): AsnarcWorld = {
-    val newPlayerPos: Point = (game.state.player.head.p + d.direction) % (60, 40)
-    val newPlayer = new Player(newPlayerPos, d)
-    game.entities = game.entities.-(game.state.player).+(newPlayer)
-    game.state = game.state.copy(player = newPlayer)
+    val newPlayerPos: Point = Player.nextPos(game)
+    val newPlayer = new Player(newPlayerPos, d, game.state.player.body)
+    game.state = game.state.copy(player = newPlayer,
+      entities = game.state.entities.-(game.state.player).+(newPlayer),
+      board = game.state.board.addElement(newPlayer.head).removeElement(game.state.player.head.p)
+    )
     game.state
   }
 }
+

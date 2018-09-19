@@ -3,7 +3,7 @@ package de.kappmeier.asnarc.render
 import de.kappmeier.asnarc.AsnarcState._
 import de.kappmeier.asnarc.board.Direction
 import de.kappmeier.asnarc.elements._
-import de.kappmeier.asnarc.game.AsnarcGameImpl
+import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcGameImpl}
 import de.kappmeier.asnarc.render.localization.AsnarcLocalization
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -76,21 +76,21 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
   def renderStart(snakeGame: AsnarcGameImpl): Unit = {
     val color = drawColors.getOrElse(Wall.getClass.getSimpleName, "black")
     renderer.fillStyle = color
-    snakeGame.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
+    snakeGame.state.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
 
     switchStyle(infoFont)
     drawCenterText(snakeGame, loc.stateMessageStart)
   }
 
-  def renderMove(snakeGame: AsnarcGameImpl): Unit = {
+  def renderMove(game: AsnarcGame): Unit = {
     // Draw background
-    for {(_, e) <- snakeGame.board.map} {
+    for {(_, e) <- game.state.board.map} {
       val color = drawColors.getOrElse(e.getClass.getSimpleName, "yellow")
       renderer.fillStyle = color
       fillElement(e)
     }
     renderer.fillStyle = drawColors(SnakeHead.getClass.getSimpleName)
-    fillElement(snakeGame.state.player.head)
+    fillElement(game.state.player.head)
   }
 
   /**
@@ -114,20 +114,20 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     * Displays the status message below the game canvas. The status contains some statistics (current length, points,
     * average turns, ...) and the current position of the head.
     *
-    * @param snakeGame the game canvas
+    * @param game the game canvas
     */
-  def renderInfo(snakeGame: AsnarcGameImpl): Unit = {
-    val len: Int = snakeGame.player.body.size + 1
+  def renderInfo(game: AsnarcGame): Unit = {
+    val len: Int = game.state.player.body.size + 1
     switchStyle(informationStyle)
     renderer.textAlign = "left"
     renderer.textBaseline = "top"
-    val averageTime = snakeGame.frame / len
-    val averageTurns = snakeGame.turns / len
+    val averageTime = game.frame / len
+    val averageTurns = game.turns / len
     val infoString = loc.statusText.format(len, 0, averageTime, averageTurns)
-    renderer.fillText(infoString, border, snakeGame.board.rows * size + border)
+    renderer.fillText(infoString, border, game.state.board.rows * size + border)
     renderer.textAlign = "right"
-    val locString = loc.statusPosition.format(snakeGame.state.player.head.p.x, snakeGame.state.player.head.p.y)
-    renderer.fillText(locString, size * snakeGame.board.cols - border, snakeGame.board.rows * size + border)
+    val locString = loc.statusPosition.format(game.state.player.head.p.x, game.state.player.head.p.y)
+    renderer.fillText(locString, size * game.state.board.cols - border, game.state.board.rows * size + border)
   }
 
   /**
@@ -153,12 +153,12 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
   /**
     * Draws a text in the middle of the game area. The text is written in the current style and color.
     *
-    * @param asnarcGame the board canvas on which the text is drawn
+    * @param game the board canvas on which the text is drawn
     * @param text      the text
     */
-  def drawCenterText(asnarcGame: AsnarcGameImpl, text: String): Unit = {
+  def drawCenterText(game: AsnarcGame, text: String): Unit = {
     renderer.textAlign = "center"
     renderer.textBaseline = "middle"
-    renderer.fillText(text, asnarcGame.board.cols * size / 2, asnarcGame.board.rows * size / 2)
+    renderer.fillText(text, game.state.board.cols * size / 2, game.state.board.rows * size / 2)
   }
 }
