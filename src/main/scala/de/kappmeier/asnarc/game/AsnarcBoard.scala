@@ -18,8 +18,8 @@ class AsnarcBoard(val map: scala.collection.immutable.Map[Point, Element]) {
   val cols = 60
 
   // Board data
-  def addElement(p: Point, element: Element): AsnarcBoard = {
-    new AsnarcBoard(map + (p -> element))
+  def addElement(element: Element): AsnarcBoard = {
+    new AsnarcBoard(map + (element.p -> element))
   }
 
   def removeElement(p: Point): AsnarcBoard = {

@@ -6,7 +6,7 @@ import de.kappmeier.asnarc.elements._
 import de.kappmeier.asnarc.entity._
 import de.kappmeier.asnarc.transitions.{StateTransition, WorldTransition}
 
-import scala.collection.immutable.Set
+import scala.collection.immutable.{HashSet, Set}
 import scala.collection.mutable
 import scala.concurrent.duration.{Duration, MILLISECONDS, SECONDS}
 import scala.math.Ordering
@@ -16,21 +16,25 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
   override val player = new Player(board.cols / 2, board.rows / 2, Set.empty[Direction])
   override val stepTime = 100
 
-  override var state = AsnarcState(player, dead = false)
+  /** Collection of all entities in the game. To be moved to state. */
+  override var entities: HashSet[Entity] = new HashSet()
+  override var state = AsnarcWorld(player, List(), dead = false)
 
   var frame = 0
   var turns = 0
 
-  override var initialFood: Point = board.freeLocation()
-  board = board.addElement(initialFood, Food(initialFood))
-
-  var specialFood: Option[Point] = None
+  val initialFood: Food = Food(board.freeLocation())
+  board = board.addElement(initialFood)
+  entities = entities + initialFood
 
   def timedElementOrder(te: TimedEntity): Int = -te.time
 
   val timedTransitions: mutable.PriorityQueue[TimedEntity] = mutable.PriorityQueue[TimedEntity]()(Ordering.by(timedElementOrder))
 
-  addTimer(SpecialFoodWaitPeriod((TimeConst.TimeBetweenSpecialFood.toMillis / stepTime).asInstanceOf[Int]))
+  // Init the game with the special food
+  entities = entities + new SpecialFoodSpawnTimer((TimeConst.TimeBetweenSpecialFood.toMillis / stepTime).asInstanceOf[Int])
+  entities = entities + player
+
 
   /**
     *
@@ -52,10 +56,7 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     */
 
   def updateMove(): Unit = {
-    val food: Food = board.elementAt(initialFood).asInstanceOf[Food]
-    val specialFood: Entity = if (this.specialFood.isDefined) board.elementAt(this.specialFood.get).asInstanceOf[Entity] else Nothing
-
-    val transitions: Seq[StateTransition] = updateMove(food) ++ updateMove(specialFood) ++ updateMove(state.player)
+    val transitions: Seq[StateTransition] = entities.map(e => updateMove(e)).flatten.toSeq
 
     transitions.foreach {
       case w: WorldTransition => w.updateWorld(this)

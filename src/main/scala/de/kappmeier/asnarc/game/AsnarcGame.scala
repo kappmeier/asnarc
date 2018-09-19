@@ -1,8 +1,9 @@
 package de.kappmeier.asnarc.game
 
 import de.kappmeier.asnarc.board.Direction.Direction
-import de.kappmeier.asnarc.board.Point
 import de.kappmeier.asnarc.entity.{Entity, Player, TimedEntity}
+
+import scala.collection.immutable.HashSet
 
 /**
   * Collection of state for the snake game that is to be modified by [[Entity]].
@@ -13,11 +14,11 @@ trait AsnarcGame {
 
   val player: Player
 
-  var state: AsnarcState
-  var initialFood: Point
-  var specialFood: Option[Point]
+  var state: AsnarcWorld
 
   var board: AsnarcBoard
+
+  var entities: HashSet[Entity]
 
   // Game data
   def time(): Int

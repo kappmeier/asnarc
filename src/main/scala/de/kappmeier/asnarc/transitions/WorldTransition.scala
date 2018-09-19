@@ -1,11 +1,17 @@
 package de.kappmeier.asnarc.transitions
 
-import de.kappmeier.asnarc.entity.Entity
-import de.kappmeier.asnarc.game.AsnarcGame
+import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld}
 
 /**
-  * Events that spawn new [[Entity]]s
+  * A transition that is able to update the game world.
   */
 trait WorldTransition extends StateTransition {
-  def updateWorld(game: AsnarcGame)
+
+
+  /**
+    * Takes the previous world state and returns the new state.
+    * @param game
+    * @return
+    */
+  def updateWorld(game: AsnarcGame): AsnarcWorld
 }
