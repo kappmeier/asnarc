@@ -1,17 +1,13 @@
 package de.kappmeier.asnarc.transitions
 
 import de.kappmeier.asnarc.elements.SpecialFood
-import de.kappmeier.asnarc.entity.SpecialFoodWaitPeriod
-import de.kappmeier.asnarc.game.{AsnarcGame, TimeConst}
+import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld}
 
 case class EatSpecialFood(f: SpecialFood) extends StateTransition with WorldTransition {
-  def updateWorld(game: AsnarcGame) {
+  def updateWorld(game: AsnarcGame): AsnarcWorld = {
     // Remove the food
-    game.board = game.board.removeElement(f.p)
+    game.entities = game.entities - f
 
-    // Place a new timer
-    val appearAt = game.time() + (TimeConst.TimeBetweenSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
-    game.addTimer(SpecialFoodWaitPeriod(appearAt))
-    game.specialFood = None
+    game.state
   }
 }
