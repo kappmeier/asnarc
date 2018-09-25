@@ -1,13 +1,11 @@
 package de.kappmeier.asnarc.transitions
 
 import de.kappmeier.asnarc.elements.SpecialFood
-import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld}
+import de.kappmeier.asnarc.game.AsnarcWorld
 
 case class EatSpecialFood(f: SpecialFood) extends StateTransition with WorldTransition {
-  def updateWorld(game: AsnarcGame): AsnarcWorld = {
+  def updateWorld(gameWorld: AsnarcWorld): AsnarcWorld = {
     // Remove the food
-    game.state = game.state.copy(entities = game.state.entities - f)
-
-    game.state
+    gameWorld.copy(entities = gameWorld.entities - f)
   }
 }

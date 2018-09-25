@@ -1,24 +1,22 @@
 package de.kappmeier.asnarc.transitions
 
 import de.kappmeier.asnarc.elements.SpecialFood
-import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld, TimeConst}
+import de.kappmeier.asnarc.game.{AsnarcWorld, TimeConst}
 
-case class SpecialFoodSpawn() extends StateTransition with WorldTransition {
+case class SpecialFoodSpawn(timeExist: Int) extends StateTransition with WorldTransition {
+
   /**
     * Creates a new entity for special food, places its element on the game board.
     *
-    * @param game
+    * @param gameWorld
     * @return
     */
-  override def updateWorld(game: AsnarcGame): AsnarcWorld = {
-    val foodPosition = game.state.board.freeLocation()
+  override def updateWorld(gameWorld: AsnarcWorld): AsnarcWorld = {
+    val foodPosition = gameWorld.board.freeLocation()
 
-    val disappearAt = game.time() + (TimeConst.TimeForSpecialFood.toMillis / game.stepTime).asInstanceOf[Int]
+    val disappearAt = gameWorld.time + timeExist
     val specialFood = SpecialFood(foodPosition, disappearAt)
 
-    game.state = game.state.copy(board = game.state.board.addElement(specialFood),
-    entities = game.state.entities + specialFood)
-
-    game.state
+    gameWorld.copy(board = gameWorld.board.addElement(specialFood), entities = gameWorld.entities + specialFood)
   }
 }

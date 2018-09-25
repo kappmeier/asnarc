@@ -9,15 +9,4 @@ import de.kappmeier.asnarc.entity.Entity
 trait AsnarcGame {
   // Step time in milliseconds
   val stepTime: Int
-
-  var frame = 0
-  var turns = 0
-
-  var state: AsnarcWorld
-
-  // Game data
-  def time(): Int
-
-  // Player element
-  def direction(): Direction
 }
