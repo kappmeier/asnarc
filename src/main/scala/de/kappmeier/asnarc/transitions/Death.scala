@@ -1,10 +1,9 @@
 package de.kappmeier.asnarc.transitions
 
-import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld}
+import de.kappmeier.asnarc.game.AsnarcWorld
 
 case class Death() extends StateTransition with WorldTransition {
-  override def updateWorld(game: AsnarcGame): AsnarcWorld = {
-    game.state = game.state.copy(dead = true)
-    game.state
+  override def updateWorld(gameWorld: AsnarcWorld): AsnarcWorld = {
+    gameWorld.copy(dead = true)
   }
 }

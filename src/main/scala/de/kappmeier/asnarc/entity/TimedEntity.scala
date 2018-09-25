@@ -1,6 +1,6 @@
 package de.kappmeier.asnarc.entity
 
-import de.kappmeier.asnarc.game.AsnarcGame
+import de.kappmeier.asnarc.game.AsnarcWorld
 import de.kappmeier.asnarc.transitions.StateTransition
 
 /**
@@ -9,5 +9,5 @@ import de.kappmeier.asnarc.transitions.StateTransition
 trait TimedEntity extends Entity {
   val time: Int
 
-  def update(game: AsnarcGame): Seq[StateTransition]
+  def update(game: AsnarcWorld): Seq[StateTransition]
 }

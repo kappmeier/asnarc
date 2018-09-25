@@ -2,25 +2,25 @@ package de.kappmeier.asnarc.transitions
 
 import de.kappmeier.asnarc.elements.{SnakeBody, SnakeHead}
 import de.kappmeier.asnarc.entity.Player
-import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcWorld}
+import de.kappmeier.asnarc.game.AsnarcWorld
 
 import scala.collection.immutable.Queue
 
 case class MoveSnake(oldHead: SnakeHead) extends StateTransition with WorldTransition {
-  def updateWorld(game: AsnarcGame): AsnarcWorld = {
-    if (game.state.player.body.nonEmpty) {
+  def updateWorld(gameWorld: AsnarcWorld): AsnarcWorld = {
+    if (gameWorld.player.body.nonEmpty) {
 
-      val newBodyElement = new SnakeBody(oldHead, game.direction())
-      val tempBody = game.state.player.body.enqueue(newBodyElement)
+      val newBodyElement = new SnakeBody(oldHead, gameWorld.player.head.moveDirection)
+      val tempBody = gameWorld.player.body.enqueue(newBodyElement)
 
       val (lastSnakeElement, remainingElements): (SnakeBody, Queue[SnakeBody]) = tempBody.dequeue
-      val newPlayer = new Player(game.state.player.head, remainingElements)
+      val newPlayer = new Player(gameWorld.player.head, remainingElements)
 
-      game.state = game.state.copy(board = game.state.board.removeElement(lastSnakeElement.p).addElement(newBodyElement),
-        entities = game.state.entities.-(game.state.player).+(newPlayer),
-        player = newPlayer
+      gameWorld.copy(board = gameWorld.board.removeElement(lastSnakeElement.p).addElement(newBodyElement),
+        entities = gameWorld.entities.-(gameWorld.player).+(newPlayer), player = newPlayer
       )
+    } else {
+      gameWorld
     }
-    game.state
   }
 }

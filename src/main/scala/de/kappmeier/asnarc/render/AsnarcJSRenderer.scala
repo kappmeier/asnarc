@@ -3,7 +3,7 @@ package de.kappmeier.asnarc.render
 import de.kappmeier.asnarc.AsnarcState._
 import de.kappmeier.asnarc.board.Direction
 import de.kappmeier.asnarc.elements._
-import de.kappmeier.asnarc.game.{AsnarcGame, AsnarcGameImpl}
+import de.kappmeier.asnarc.game.AsnarcWorld
 import de.kappmeier.asnarc.render.localization.AsnarcLocalization
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -53,44 +53,44 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
   val drawSize: Int = 2 * drawRadius
   val size: Int = 2 * radius
 
-  def render(snakeGame: AsnarcGameImpl, asnarcState: AsnarcState) {
+  def render(gameWorld: AsnarcWorld, asnarcState: AsnarcState) {
     renderer.clearRect(0, 0, canvas.width, canvas.height)
 
     asnarcState match {
       case Started => // start the game
-        renderStart(snakeGame)
+        renderStart(gameWorld)
       case Running =>
-        renderMove(snakeGame)
-        renderInfo(snakeGame)
+        renderMove(gameWorld)
+        renderInfo(gameWorld)
       case GameOver =>
-        renderMove(snakeGame)
-        renderGameOver(snakeGame)
+        renderMove(gameWorld)
+        renderGameOver(gameWorld)
       // restart the game
       case Pause => // continue the game
-        renderMove(snakeGame)
-        renderPause(snakeGame)
-        renderInfo(snakeGame)
+        renderMove(gameWorld)
+        renderPause(gameWorld)
+        renderInfo(gameWorld)
     }
   }
 
-  def renderStart(snakeGame: AsnarcGameImpl): Unit = {
+  def renderStart(gameWorld: AsnarcWorld): Unit = {
     val color = drawColors.getOrElse(Wall.getClass.getSimpleName, "black")
     renderer.fillStyle = color
-    snakeGame.state.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
+    gameWorld.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
 
     switchStyle(infoFont)
-    drawCenterText(snakeGame, loc.stateMessageStart)
+    drawCenterText(gameWorld, loc.stateMessageStart)
   }
 
-  def renderMove(game: AsnarcGame): Unit = {
+  def renderMove(gameWorld: AsnarcWorld): Unit = {
     // Draw background
-    for {(_, e) <- game.state.board.map} {
+    for {(_, e) <- gameWorld.board.map} {
       val color = drawColors.getOrElse(e.getClass.getSimpleName, "yellow")
       renderer.fillStyle = color
       fillElement(e)
     }
     renderer.fillStyle = drawColors(SnakeHead.getClass.getSimpleName)
-    fillElement(game.state.player.head)
+    fillElement(gameWorld.player.head)
   }
 
   /**
@@ -114,51 +114,52 @@ class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     * Displays the status message below the game canvas. The status contains some statistics (current length, points,
     * average turns, ...) and the current position of the head.
     *
-    * @param game the game canvas
+    * @param gameWorld the game canvas
     */
-  def renderInfo(game: AsnarcGame): Unit = {
-    val len: Int = game.state.player.body.size + 1
+  def renderInfo(gameWorld: AsnarcWorld): Unit = {
+    val len: Int = gameWorld.player.body.size + 1
     switchStyle(informationStyle)
     renderer.textAlign = "left"
     renderer.textBaseline = "top"
-    val averageTime = game.frame / len
-    val averageTurns = game.turns / len
+    val averageTime = gameWorld.time / len
+    // TODO: replace default -1 with actual turn count
+    val averageTurns = -1 / len
     val infoString = loc.statusText.format(len, 0, averageTime, averageTurns)
-    renderer.fillText(infoString, border, game.state.board.rows * size + border)
+    renderer.fillText(infoString, border, gameWorld.board.rows * size + border)
     renderer.textAlign = "right"
-    val locString = loc.statusPosition.format(game.state.player.head.p.x, game.state.player.head.p.y)
-    renderer.fillText(locString, size * game.state.board.cols - border, game.state.board.rows * size + border)
+    val locString = loc.statusPosition.format(gameWorld.player.head.p.x, gameWorld.player.head.p.y)
+    renderer.fillText(locString, size * gameWorld.board.cols - border, gameWorld.board.rows * size + border)
   }
 
   /**
     * Displays the pause message on top of the game.
     *
-    * @param snakeGame the board canvas
+    * @param gameWorld the board canvas
     */
-  def renderPause(snakeGame: AsnarcGameImpl): Unit = {
+  def renderPause(gameWorld: AsnarcWorld): Unit = {
     switchStyle(infoFont)
-    drawCenterText(snakeGame, loc.stateMessagePause)
+    drawCenterText(gameWorld, loc.stateMessagePause)
   }
 
   /**
     * Displays the game over message on top of the game.
     *
-    * @param snakeGame the board canvas
+    * @param gameWorld the board canvas
     */
-  def renderGameOver(snakeGame: AsnarcGameImpl): Unit = {
+  def renderGameOver(gameWorld: AsnarcWorld): Unit = {
     switchStyle(gameOverFont)
-    drawCenterText(snakeGame, loc.stateMessageGameOver)
+    drawCenterText(gameWorld, loc.stateMessageGameOver)
   }
 
   /**
     * Draws a text in the middle of the game area. The text is written in the current style and color.
     *
-    * @param game the board canvas on which the text is drawn
+    * @param gameWorld the board canvas on which the text is drawn
     * @param text      the text
     */
-  def drawCenterText(game: AsnarcGame, text: String): Unit = {
+  def drawCenterText(gameWorld: AsnarcWorld, text: String): Unit = {
     renderer.textAlign = "center"
     renderer.textBaseline = "middle"
-    renderer.fillText(text, game.state.board.cols * size / 2, game.state.board.rows * size / 2)
+    renderer.fillText(text, gameWorld.board.cols * size / 2, gameWorld.board.rows * size / 2)
   }
 }
