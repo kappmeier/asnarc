@@ -11,15 +11,6 @@ import org.scalajs.dom.html
 import scala.collection.immutable.HashMap
 
 /**
-  * Structure containing the font style for text rendered.
-  *
-  * @param font  the font style as html, i.e. "sans-serif"
-  * @param size  the size in pixels
-  * @param color the font color, i.e. #ff0000 or "darkgreen"
-  */
-case class RendererTextStyle(font: String, size: Int, color: String)
-
-/**
   * Draws the Asnarc game into a canvas.
   */
 class AsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
