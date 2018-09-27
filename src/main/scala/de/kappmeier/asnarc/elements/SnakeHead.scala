@@ -5,7 +5,7 @@ import de.kappmeier.asnarc.board.{Direction, Point}
 
 import scala.collection.immutable.Set
 
-case class SnakeHead(p: Point, moveDirection: Direction, connects: Set[Direction]) extends Element {
+class SnakeHead(override val p: Point, val moveDirection: Direction, override val connects: Set[Direction]) extends SnakeElement(p, connects) {
 
   def this(x: Int, y: Int, moveDirection: Direction) {
     this(Point(x, y), moveDirection, Set.empty[Direction])
@@ -15,3 +15,5 @@ case class SnakeHead(p: Point, moveDirection: Direction, connects: Set[Direction
     this(p, moveDirection: Direction, Set[Direction](Direction.opposite(moveDirection)))
   }
 }
+
+object SnakeHead

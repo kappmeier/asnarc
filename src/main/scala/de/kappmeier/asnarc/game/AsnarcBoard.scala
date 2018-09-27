@@ -22,8 +22,8 @@ class AsnarcBoard(val map: scala.collection.immutable.Map[Point, Element]) {
     new AsnarcBoard(map + (element.p -> element))
   }
 
-  def removeElement(p: Point): AsnarcBoard = {
-    new AsnarcBoard(map - p)
+  def removeElement(element: Element): AsnarcBoard = {
+    new AsnarcBoard(map - element.p)
   }
 
   def elementAt(p: Point): Element = map.getOrElse(p, Empty)

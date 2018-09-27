@@ -18,7 +18,7 @@ case class SpecialFood(p: Point, removeAt: Int) extends SingleElementEntity {
     * @return the list of state transitions that should be applied to the game world
     */
   override def update(gameWorld: AsnarcWorld): Seq[StateTransition] = {
-    if (gameWorld.player.head.p == p) {
+    if (gameWorld.player.snakeHead().p == p) {
       Seq(EatSpecialFood(this))
     } else if (gameWorld.time == removeAt) {
       Seq(RemoveEntity(this, Seq(this)))
