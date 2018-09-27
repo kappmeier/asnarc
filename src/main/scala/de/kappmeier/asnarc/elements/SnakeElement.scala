@@ -5,8 +5,7 @@ import de.kappmeier.asnarc.board.Point
 
 import scala.collection.immutable.Set
 
-case class SnakeBody(p: Point, connects: Set[Direction]) extends Element {
-  def this(e: SnakeHead, connectsAlso: Direction) {
-    this(e.p, e.connects + connectsAlso)
-  }
+class SnakeElement(val p: Point, val connects: Set[Direction]) extends Element {
 }
+
+object SnakeElement

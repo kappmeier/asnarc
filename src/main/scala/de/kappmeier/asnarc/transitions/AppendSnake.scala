@@ -1,25 +1,19 @@
 package de.kappmeier.asnarc.transitions
 
-import de.kappmeier.asnarc.board.Direction.{Direction, Down, Left, Right, Up}
-import de.kappmeier.asnarc.elements.SnakeBody
+import de.kappmeier.asnarc.board.Point
 import de.kappmeier.asnarc.entity.Player
 import de.kappmeier.asnarc.game.AsnarcWorld
 
-import scala.collection.immutable.{Queue, Set}
-
-case class AppendSnake(player: Player, full: Boolean) extends StateTransition with WorldTransition {
-  def this(player: Player) = this(player, false)
+case class AppendSnake(full: Boolean = false) extends StateTransition with WorldTransition {
 
   def updateWorld(gameWorld: AsnarcWorld): AsnarcWorld = {
-
-    val newElement: SnakeBody =
-      if (full) SnakeBody(player.head.p, Set[Direction](Left, Right, Up, Down))
-      else new SnakeBody(player.head, gameWorld.player.head.moveDirection)
-    val newBody: Queue[SnakeBody] = gameWorld.player.body.enqueue(newElement)
-    val newPlayer: Player = new Player(gameWorld.player.head, newBody)
-
-    gameWorld.copy(board = gameWorld.board.addElement(newElement),
-      entities = gameWorld.entities.-(gameWorld.player).+(newPlayer), player = newPlayer)
+    val newPlayerPos: Point = Player.nextPos(gameWorld)
+    val newPlayer: Player = gameWorld.player.extend(newPlayerPos, full)
+    gameWorld.copy(
+      board = gameWorld.board.addElement(newPlayer.snakeHead()).removeElement(gameWorld.player.snakeHead()).addElement(newPlayer.elementAt(1)),
+      entities = gameWorld.entities.-(gameWorld.player).+(newPlayer),
+      player = newPlayer
+    )
   }
 }
 
@@ -27,5 +21,5 @@ case class AppendSnake(player: Player, full: Boolean) extends StateTransition wi
   * Companion object.
   */
 object AppendSnake {
-  def apply(player: Player) = new AppendSnake(player)
+  def apply() = new AppendSnake()
 }

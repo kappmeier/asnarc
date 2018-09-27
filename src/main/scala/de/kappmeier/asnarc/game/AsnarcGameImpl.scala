@@ -1,7 +1,7 @@
 package de.kappmeier.asnarc.game
 
-import de.kappmeier.asnarc.board.Direction
 import de.kappmeier.asnarc.board.Direction.Direction
+import de.kappmeier.asnarc.board.{Direction, Point}
 import de.kappmeier.asnarc.elements._
 import de.kappmeier.asnarc.entity._
 import de.kappmeier.asnarc.transitions.{StateTransition, WorldTransition}
@@ -20,7 +20,7 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
   def initGameWorld(): AsnarcWorld = {
     /** Collection of all entities in the game. To be moved to state. */
     val createdBoard = new AsnarcBoard(level)
-    val player = new Player(createdBoard.cols / 2, createdBoard.rows / 2, Direction.Left)
+    val player = new Player(Point(createdBoard.cols / 2, createdBoard.rows / 2), Direction.Left)
     // Init the game with the special food
     val initialFood: Food = Food(createdBoard.freeLocation())
 
@@ -67,8 +67,7 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
 
   def newDirection(gameWorld: AsnarcWorld, d: Direction): AsnarcWorld = {
     val oldPlayer = gameWorld.player
-    val newPlayer = new Player(oldPlayer.head.p, d, oldPlayer.body)
-
+    val newPlayer = oldPlayer.turnTo(d)
     val entities = gameWorld.entities - oldPlayer + newPlayer
 
     gameWorld.copy(player = newPlayer, entities = entities)

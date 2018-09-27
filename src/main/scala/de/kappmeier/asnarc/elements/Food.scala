@@ -16,7 +16,7 @@ case class Food(p: Point) extends SingleElementEntity {
   override def connects = Set.empty[Direction]
 
   override def update(gameWorld: AsnarcWorld): Seq[StateTransition] = {
-    if (gameWorld.player.head.p == p) {
+    if (gameWorld.player.snakeHead().p == p) {
       Seq(EatFood(this))
     } else Nil
   }

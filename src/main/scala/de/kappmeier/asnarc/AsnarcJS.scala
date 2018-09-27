@@ -5,12 +5,11 @@ import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.game.{AsnarcGameImpl, AsnarcWorld}
 import de.kappmeier.asnarc.render.AsnarcJSRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
-
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
 import scala.collection.mutable
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 /**
   * Different game states to render.
@@ -101,4 +100,10 @@ object AsnarcJS {
       }
     }
   }
+
+//  def log2console(a: AnyRef): Unit = {
+//    import scala.scalajs.js
+//    import js.Dynamic.{ global => g }
+//    g.console.log(a.toString)
+//  }
 }

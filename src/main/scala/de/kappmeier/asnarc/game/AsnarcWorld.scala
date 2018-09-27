@@ -26,18 +26,10 @@ case class AsnarcWorld(time: Int,
     */
 
   def hitSelf(p: Point): Boolean = {
-    player.body.exists(element => element.p == p)
+    player.exists(element => element.p == p)
   }
 
   def isIllegal(p: Point): Boolean = board.outOfBounds(p) || hitSelf(p)
-
-
-  /**
-    *
-    * From the trait to retrieve and update the game status.
-    *
-    */
-  def direction(): Direction = player.head.moveDirection
 }
 
 object AsnarcWorld {

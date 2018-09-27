@@ -2,16 +2,16 @@ package de.kappmeier.asnarc.board
 
 object Direction extends Enumeration {
   type Direction = Value
-  val Left: Direction = new DirectionVal(Point(-1, 0), 37) {
+  val Left: Direction = new DirectionVal("Left", Point(-1, 0), 37) {
     override def opposite: DirectionVal = Right
   }
-  val Right: DirectionVal = new DirectionVal(Point(1, 0), 39) {
+  val Right: DirectionVal = new DirectionVal("Right", Point(1, 0), 39) {
     override def opposite: DirectionVal = Left
   }
-  val Up: DirectionVal = new DirectionVal(Point(0, -1), 38) {
+  val Up: DirectionVal = new DirectionVal("Up", Point(0, -1), 38) {
     override def opposite: DirectionVal = Down
   }
-  val Down: DirectionVal = new DirectionVal(Point(0, 1), 40) {
+  val Down: DirectionVal = new DirectionVal("Down", Point(0, 1), 40) {
     override def opposite: DirectionVal = Up
   }
 
@@ -21,7 +21,7 @@ object Direction extends Enumeration {
     * @param direction the vector of the direction
     * @param keyCode   the key code belonging to the direction
     */
-  abstract case class DirectionVal(direction: Point, keyCode: Int) extends super.Val() {
+  abstract case class DirectionVal(name: String, direction: Point, keyCode: Int) extends super.Val(name) {
     def opposite: DirectionVal
   }
 
