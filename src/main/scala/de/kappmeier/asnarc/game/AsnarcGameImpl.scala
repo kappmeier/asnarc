@@ -46,14 +46,14 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
     val transitions: Seq[StateTransition] = state.entities.toSeq.flatMap(e => updateMove(state, e))
 
     var lastState: AsnarcWorld = state
-    for (stateTransition: StateTransition <- transitions) {
+    for {stateTransition: StateTransition <- transitions} {
       stateTransition match {
         case w: WorldTransition => lastState = w.updateWorld(lastState)
       }
     }
-    //transitions.foreach {
-    //  case w: WorldTransition => w.updateWorld(this)
-    //}
+    // transitions.foreach {
+    //   case w: WorldTransition => w.updateWorld(this)
+    // }
     lastState
   }
 
@@ -72,7 +72,6 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
 
     gameWorld.copy(player = newPlayer, entities = entities)
   }
-
 
 }
 

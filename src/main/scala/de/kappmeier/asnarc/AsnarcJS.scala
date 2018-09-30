@@ -100,10 +100,4 @@ object AsnarcJS {
       }
     }
   }
-
-//  def log2console(a: AnyRef): Unit = {
-//    import scala.scalajs.js
-//    import js.Dynamic.{ global => g }
-//    g.console.log(a.toString)
-//  }
 }

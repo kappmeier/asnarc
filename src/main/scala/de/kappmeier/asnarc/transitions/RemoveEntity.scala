@@ -13,7 +13,7 @@ case class RemoveEntity(toRemove: Entity, elements: Seq[Element]) extends StateT
     */
   override def updateWorld(gameWorld: AsnarcWorld): AsnarcWorld = {
     var intermediateWorld = gameWorld.copy(entities = gameWorld.entities - toRemove)
-    for (element <- elements) {
+    for {element <- elements} {
       intermediateWorld = intermediateWorld.copy(board = intermediateWorld.board.removeElement(element))
     }
     intermediateWorld
