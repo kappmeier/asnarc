@@ -11,7 +11,7 @@ case class AppendSnake(full: Boolean = false) extends StateTransition with World
     val newPlayer: Player = gameWorld.player.extend(newPlayerPos, full)
     gameWorld.copy(
       board = gameWorld.board.addElement(newPlayer.snakeHead()).removeElement(gameWorld.player.snakeHead()).addElement(newPlayer.elementAt(1)),
-      entities = gameWorld.entities.-(gameWorld.player).+(newPlayer),
+      entities = gameWorld.entities - gameWorld.player + newPlayer,
       player = newPlayer
     )
   }
