@@ -13,8 +13,8 @@ class AsnarcBoard(val map: scala.collection.immutable.Map[Point, Element]) {
     this(AsnarcBoard.getFromLevel(level))
   }
 
-  val rows = 40
-  val cols = 60
+  val rows: Integer = map.map(_._1.y).max - map.map(_._1.y).min + 1
+  val cols: Integer = map.map(_._1.x).max - map.map(_._1.x).min + 1
 
   // Board data
   def addElement(element: Element): AsnarcBoard = {
