@@ -3,103 +3,122 @@ package de.kappmeier.asnarc.entity
 import de.kappmeier.asnarc.AsnarcSpec
 import de.kappmeier.asnarc.board.Direction.{Direction, Down, Left, Right, Up}
 import de.kappmeier.asnarc.board.{Direction, Point}
-import de.kappmeier.asnarc.elements.{SnakeElement, SnakeHead}
+import de.kappmeier.asnarc.elements.{SnakeElement, SnakeHead, Wall}
+import de.kappmeier.asnarc.game.{AsnarcBoard, AsnarcWorld}
+import de.kappmeier.asnarc.transitions.{Death, StateTransition}
 
-import scala.collection.immutable.Set
+import scala.collection.immutable.{HashSet, Set}
 
 class PlayerTest extends AsnarcSpec {
-    "initialization" should "create head only instance" in {
-        val fixture: Player = new Player(Point(3, 4), Right)
+  "initialization" should "create head only instance" in {
+    val fixture: Player = new Player(Point(3, 4), Right)
 
-        fixture.length() should be(1)
-    }
+    fixture.length() should be(1)
+  }
 
-    "movement" should "correctly move head" in {
+  "movement" should "correctly move head" in {
 
-        val fixture: Player = new Player(PlayerTest.StartPoint, Right)
+    val fixture: Player = new Player(PlayerTest.StartPoint, Right)
 
-        val fixtureHead = fixture.snakeHead()
+    val fixtureHead = fixture.snakeHead()
 
 
-        val (newPlayer, removedElement): (Player, SnakeElement) = fixture.step(PlayerTest.TargetPoint)
+    val (newPlayer, removedElement): (Player, SnakeElement) = fixture.step(PlayerTest.TargetPoint)
 
-        newPlayer.length() should be(1)
-        newPlayer.snakeHead().p should be(PlayerTest.TargetPoint)
-        removedElement should be(fixtureHead)
-        newPlayer.snakeHead().connects should be(Set[Direction](Left))
-    }
+    newPlayer.length() should be(1)
+    newPlayer.snakeHead().p should be(PlayerTest.TargetPoint)
+    removedElement should be(fixtureHead)
+    newPlayer.snakeHead().connects should be(Set[Direction](Left))
+  }
 
-    "extension" should "append a head and replace old with body element" in {
-        val fixture: Player = new Player(PlayerTest.StartPoint, Right)
+  "extension" should "append a head and replace old with body element" in {
+    val fixture: Player = new Player(PlayerTest.StartPoint, Right)
 
-        val newPlayer: Player = fixture.extend(PlayerTest.TargetPoint)
+    val newPlayer: Player = fixture.extend(PlayerTest.TargetPoint)
 
-        newPlayer.length() should be(2)
-        newPlayer.elementAt(0) shouldBe a[SnakeHead]
-        newPlayer.elementAt(1) shouldBe a[SnakeElement]
-    }
+    newPlayer.length() should be(2)
+    newPlayer.elementAt(0) shouldBe a[SnakeHead]
+    newPlayer.elementAt(1) shouldBe a[SnakeElement]
+  }
 
-    it should "correctly set up connections" in {
-        val fixture: Player = new Player(PlayerTest.StartPoint, Right)
+  it should "correctly set up connections" in {
+    val fixture: Player = new Player(PlayerTest.StartPoint, Right)
 
-        val newPlayer: Player = fixture.extend(PlayerTest.TargetPoint)
+    val newPlayer: Player = fixture.extend(PlayerTest.TargetPoint)
 
-        newPlayer.length() should be(2)
-        newPlayer.snakeHead().p should be(PlayerTest.TargetPoint)
+    newPlayer.length() should be(2)
+    newPlayer.snakeHead().p should be(PlayerTest.TargetPoint)
 
-        // Check connections
-        newPlayer.snakeHead().connects should be(Set[Direction](Left))
-        newPlayer.elementAt(1).p should be(PlayerTest.StartPoint)
-        newPlayer.elementAt(1).connects should be(Set[Direction](Right, Left))
-    }
+    // Check connections
+    newPlayer.snakeHead().connects should be(Set[Direction](Left))
+    newPlayer.elementAt(1).p should be(PlayerTest.StartPoint)
+    newPlayer.elementAt(1).connects should be(Set[Direction](Right, Left))
+  }
 
-    "turning" should "connect correctly" in {
-        val initPlayer: Player = new Player(PlayerTest.StartPoint, Left)
-        val twoElements: Player = initPlayer.extend(leftOf(initPlayer.snakeHead().p))
-        val threeElements: Player = twoElements.extend(leftOf(twoElements.snakeHead().p))
+  "turning" should "connect correctly" in {
+    val initPlayer: Player = new Player(PlayerTest.StartPoint, Left)
+    val twoElements: Player = initPlayer.extend(leftOf(initPlayer.snakeHead().p))
+    val threeElements: Player = twoElements.extend(leftOf(twoElements.snakeHead().p))
 
-        threeElements.length() should be(3)
-        threeElements.snakeHead().p should be(Point(1, 4))
+    threeElements.length() should be(3)
+    threeElements.snakeHead().p should be(Point(1, 4))
 
-        val fixture: Player = threeElements.turnTo(Direction.Up)
+    val fixture: Player = threeElements.turnTo(Direction.Up)
 
-        val (check, _): (Player, SnakeElement) = fixture.step(aboveOf(threeElements.snakeHead().p))
+    val (check, _): (Player, SnakeElement) = fixture.step(aboveOf(threeElements.snakeHead().p))
 
-        check.length() should be(3)
-        check.elementAt(0).connects should be(Set[Direction](Down))
-        check.elementAt(1).connects should be(Set[Direction](Up, Right))
-        check.elementAt(2).connects should be(Set[Direction](Left, Right))
-    }
+    check.length() should be(3)
+    check.elementAt(0).connects should be(Set[Direction](Down))
+    check.elementAt(1).connects should be(Set[Direction](Up, Right))
+    check.elementAt(2).connects should be(Set[Direction](Left, Right))
+  }
 
-    it should "connect turns correctly with full head" in {
-        val initPlayer: Player = new Player(PlayerTest.StartPoint, Left)
-        val twoElements: Player = initPlayer.extend(leftOf(initPlayer.snakeHead().p))
-        val threeElements: Player = twoElements.extend(leftOf(twoElements.snakeHead().p), full = true)
+  it should "connect turns correctly with full head" in {
+    val initPlayer: Player = new Player(PlayerTest.StartPoint, Left)
+    val twoElements: Player = initPlayer.extend(leftOf(initPlayer.snakeHead().p))
+    val threeElements: Player = twoElements.extend(leftOf(twoElements.snakeHead().p), full = true)
 
-        threeElements.length() should be(3)
-        threeElements.snakeHead().p should be(Point(1, 4))
-        threeElements.snakeHead().connects should be(Set[Direction](Left, Right, Up, Down))
+    threeElements.length() should be(3)
+    threeElements.snakeHead().p should be(Point(1, 4))
+    threeElements.snakeHead().connects should be(Set[Direction](Left, Right, Up, Down))
 
-        val fixture: Player = threeElements.turnTo(Up)
+    val fixture: Player = threeElements.turnTo(Up)
 
-        val (check, removedElement): (Player, SnakeElement) = fixture.step(aboveOf(threeElements.snakeHead().p))
+    val (check, _): (Player, SnakeElement) = fixture.step(aboveOf(threeElements.snakeHead().p))
 
-        check.length() should be(3)
-        check.elementAt(0).connects should be(Set[Direction](Down))
-        check.elementAt(1).connects should be(Set[Direction](Up, Right, Down, Left))
-        check.elementAt(2).connects should be(Set[Direction](Left, Right))
-    }
+    check.length() should be(3)
+    check.elementAt(0).connects should be(Set[Direction](Down))
+    check.elementAt(1).connects should be(Set[Direction](Up, Right, Down, Left))
+    check.elementAt(2).connects should be(Set[Direction](Left, Right))
+  }
 
-    private def leftOf(p: Point): Point = {
-        Point(p.x - 1, p.y)
-    }
+  private def leftOf(p: Point): Point = {
+    Point(p.x - 1, p.y)
+  }
 
-    private def aboveOf(p: Point): Point = {
-        Point(p.x, p.y - 1)
-    }
+  private def aboveOf(p: Point): Point = {
+    Point(p.x, p.y - 1)
+  }
+
+  "a player" should "die when hitting a wall" in {
+    val fixture: Player = new Player(PlayerTest.StartPoint, Left)
+
+    val left: Point = Point(2, 4)
+    val board: AsnarcBoard = new AsnarcBoard(Map(
+      PlayerTest.StartPoint -> fixture.snakeHead(),
+      left -> new Wall(left, Set.empty)
+    ))
+
+    val gameWorld: AsnarcWorld = new AsnarcWorld(0, board, fixture, HashSet(fixture), false)
+
+    val stateUpdates: Seq[StateTransition] = fixture.update(gameWorld)
+
+    stateUpdates.size should be(1)
+    stateUpdates(0) should be(Death())
+  }
 }
 
 object PlayerTest {
-    val StartPoint: Point = Point(3, 4)
-    val TargetPoint: Point = Point(7, 10)
+  val StartPoint: Point = Point(3, 4)
+  val TargetPoint: Point = Point(7, 10)
 }
