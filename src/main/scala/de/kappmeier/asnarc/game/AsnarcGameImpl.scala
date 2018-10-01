@@ -1,7 +1,7 @@
 package de.kappmeier.asnarc.game
 
 import de.kappmeier.asnarc.board.Direction.Direction
-import de.kappmeier.asnarc.board.{Direction, Point}
+import de.kappmeier.asnarc.board.{AsnarcBoard, Direction, Point}
 import de.kappmeier.asnarc.elements._
 import de.kappmeier.asnarc.entity._
 import de.kappmeier.asnarc.transitions.{StateTransition, WorldTransition}

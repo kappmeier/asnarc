@@ -2,9 +2,9 @@ package de.kappmeier.asnarc.entity
 
 import de.kappmeier.asnarc.AsnarcSpec
 import de.kappmeier.asnarc.board.Direction.{Direction, Down, Left, Right, Up}
-import de.kappmeier.asnarc.board.{Direction, Point}
+import de.kappmeier.asnarc.board.{AsnarcBoard, Direction, Point}
 import de.kappmeier.asnarc.elements.{SnakeElement, SnakeHead, Wall}
-import de.kappmeier.asnarc.game.{AsnarcBoard, AsnarcWorld}
+import de.kappmeier.asnarc.game.AsnarcWorld
 import de.kappmeier.asnarc.transitions.{Death, StateTransition}
 
 import scala.collection.immutable.{HashSet, Set}
