@@ -1,7 +1,6 @@
-package de.kappmeier.asnarc.game
+package de.kappmeier.asnarc.board
 
 import de.kappmeier.asnarc.LevelGenerator
-import de.kappmeier.asnarc.board.Point
 import de.kappmeier.asnarc.elements.{Element, Empty, Wall}
 
 import scala.collection.mutable

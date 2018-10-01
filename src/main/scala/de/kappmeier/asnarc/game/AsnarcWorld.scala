@@ -1,7 +1,7 @@
 package de.kappmeier.asnarc.game
 
 import de.kappmeier.asnarc.board.Direction.Direction
-import de.kappmeier.asnarc.board.Point
+import de.kappmeier.asnarc.board.{AsnarcBoard, Point}
 import de.kappmeier.asnarc.entity.{Entity, Player}
 
 import scala.collection.immutable.HashSet
