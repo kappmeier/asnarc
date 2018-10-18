@@ -3,7 +3,7 @@ package de.kappmeier.asnarc
 import de.kappmeier.asnarc.board.Direction
 import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.game.{AsnarcGameImpl, AsnarcWorld}
-import de.kappmeier.asnarc.render.AsnarcJSRenderer
+import de.kappmeier.asnarc.render.AsnarcJSGameRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -46,7 +46,7 @@ object AsnarcJS {
   }
 
     val localization = new AsnarcLocalizationDe
-    val renderer: AsnarcJSRenderer = new AsnarcJSRenderer(canvas, localization)
+    val renderer: AsnarcJSGameRenderer = new AsnarcJSGameRenderer(canvas, localization)
     initGame()
 
     scala.scalajs.js.timers.setInterval(100) {
