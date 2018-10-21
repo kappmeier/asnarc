@@ -97,6 +97,6 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
     def drawCenterText(gameWorld: AsnarcWorld, text: String): Unit = {
         renderer.textAlign = "center"
         renderer.textBaseline = "middle"
-        renderer.fillText(text, gameWorld.board.cols * size / 2, gameWorld.board.rows * size / 2)
+        renderer.fillText(text, gameWorld.board.cols * AsnarcJSRenderer.Size / 2, gameWorld.board.rows * AsnarcJSRenderer.Size / 2)
     }
 }

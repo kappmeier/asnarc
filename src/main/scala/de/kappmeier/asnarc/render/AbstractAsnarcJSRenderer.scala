@@ -55,14 +55,10 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     * Whether the block is connected with a neighbor is not defined by two block being actually neighbors. Instead, it
     * is enough that the `connects` property of the [[Element]] is set.
     *
-    * @param location the location of the [[Element]] that is filled
+    * @param element the location of the [[Element]] that is filled
     */
-  def fillElement(location: Element): Unit = {
-    val x = if (location.connects contains Direction.Left) location.p.x * AsnarcJSRenderer.Size else location.p.x * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border
-    val y = if (location.connects contains Direction.Up) location.p.y * AsnarcJSRenderer.Size else location.p.y * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border
-    val w = AsnarcJSRenderer.DrawSize + (if (location.connects contains Direction.Left) 1 else 0) + (if (location.connects contains Direction.Right) 1 else 0)
-    val h = AsnarcJSRenderer.DrawSize + (if (location.connects contains Direction.Up) 1 else 0) + (if (location.connects contains Direction.Down) 1 else 0)
-    renderer.fillRect(x, y, w, h)
+  def fillElement(element: Element, scale: Double = 1.0): Unit = {
+    AbstractAsnarcJSRenderer.fillElement(renderer, element, 1.0)
   }
 
   /**
@@ -88,6 +84,29 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     renderer.textAlign = "right"
     renderer.fillText(rightString, AsnarcJSRenderer.Size * board.cols - AsnarcJSRenderer.Border,
       board.rows * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border)
+  }
+
+}
+
+object AbstractAsnarcJSRenderer {
+  def fillElement(renderer: dom.CanvasRenderingContext2D, location: Element, scale: Double = 1.0): Unit = {
+    fillElementAt(renderer, location.p.x, location.p.y, location, scale)
+  }
+
+  def fillElementAt(renderer: dom.CanvasRenderingContext2D, xPosition: Int, yPosition: Int, location: Element, scale: Double = 1.0): String = {
+    val containsLeft = if (location.connects contains Direction.Left) 1 else 0
+    val containsRight = if (location.connects contains Direction.Right) 1 else 0
+    val containsUp = if (location.connects contains Direction.Up) 1 else 0
+    val containsDown = if (location.connects contains Direction.Down) 1 else 0
+
+    val x = xPosition * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border + -1 * containsLeft * AsnarcJSRenderer.Border
+    val y = yPosition * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border + -1 * containsUp * AsnarcJSRenderer.Border
+    val w = AsnarcJSRenderer.DrawSize + ((containsLeft + containsRight) * AsnarcJSRenderer.Border)
+    val h = AsnarcJSRenderer.DrawSize + ((containsUp + containsDown) * AsnarcJSRenderer.Border)
+
+    renderer.fillRect(x * scale, y * scale, w * scale, h * scale)
+    "Draw at: x = " + x + " with width = " + w
+    "x=" + x * scale + "y=" + y * scale + "w=" + w * scale + "h=" + h * scale
   }
 
 }
