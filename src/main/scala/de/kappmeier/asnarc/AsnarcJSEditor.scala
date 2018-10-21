@@ -15,20 +15,25 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
   */
 @JSExportTopLevel("AsnarcJSEditor")
 object AsnarcJSEditor {
+
+
   @JSExport
   def main(canvas: html.Canvas, level: String): Unit = {
     val board: AsnarcBoard = new AsnarcBoard(level)
 
     val localization = new AsnarcLocalizationDe
-    val renderer: AsnarcJSEditorRenderer = new AsnarcJSEditorRenderer(canvas, localization)
+    val detailsCanvas: html.Canvas = dom.document.getElementById("canvas-details").asInstanceOf[html.Canvas]
+    val renderer: AsnarcJSEditorRenderer = new AsnarcJSEditorRenderer(canvas, detailsCanvas, localization)
 
-    renderer.render(board, "")
+    renderer.renderBoard(board, "")
 
     canvas.onclick = (e: dom.MouseEvent) => {
       val x: Int = e.clientX.asInstanceOf[Int] / AsnarcJSRenderer.Size
       val y = e.clientY.asInstanceOf[Int] / AsnarcJSRenderer.Size
       if (x < board.cols && y < board.rows) {
-        renderer.render(board, "Click: " + board.elementAt(Point(x,y)) + " at " + x + "," + y)
+        renderer.renderBoard(board, "Click: " + board.elementAt(Point(x,y)) + " at " + x + "," + y)
+        renderer.highlight(x, y)
+        renderer.highlightElement(board.elementAt(Point(x, y)))
       }
 
     }
