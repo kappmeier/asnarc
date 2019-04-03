@@ -44,7 +44,7 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
         gameWorld.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
 
         switchStyle(AsnarcJSRenderer.InfoFont)
-        drawCenterText(gameWorld, loc.stateMessageStart)
+        drawCenterText(gameWorld.board, loc.stateMessageStart)
     }
 
     def renderMove(gameWorld: AsnarcWorld): Unit = {
@@ -75,7 +75,7 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
       */
     def renderPause(gameWorld: AsnarcWorld): Unit = {
         switchStyle(AsnarcJSRenderer.InfoFont)
-        drawCenterText(gameWorld, loc.stateMessagePause)
+        drawCenterText(gameWorld.board, loc.stateMessagePause)
     }
 
     /**
@@ -85,18 +85,6 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
       */
     def renderGameOver(gameWorld: AsnarcWorld): Unit = {
         switchStyle(gameOverFont)
-        drawCenterText(gameWorld, loc.stateMessageGameOver)
-    }
-
-    /**
-      * Draws a text in the middle of the game area. The text is written in the current style and color.
-      *
-      * @param gameWorld the board canvas on which the text is drawn
-      * @param text      the text
-      */
-    def drawCenterText(gameWorld: AsnarcWorld, text: String): Unit = {
-        renderer.textAlign = "center"
-        renderer.textBaseline = "middle"
-        renderer.fillText(text, gameWorld.board.cols * AsnarcJSRenderer.Size / 2, gameWorld.board.rows * AsnarcJSRenderer.Size / 2)
+        drawCenterText(gameWorld.board, loc.stateMessageGameOver)
     }
 }
