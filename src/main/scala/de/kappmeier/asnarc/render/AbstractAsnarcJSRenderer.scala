@@ -2,6 +2,7 @@ package de.kappmeier.asnarc.render
 
 import de.kappmeier.asnarc.board.{AsnarcBoard, Direction}
 import de.kappmeier.asnarc.elements._
+import de.kappmeier.asnarc.game.AsnarcWorld
 import de.kappmeier.asnarc.render.localization.AsnarcLocalization
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -84,6 +85,18 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     renderer.textAlign = "right"
     renderer.fillText(rightString, AsnarcJSRenderer.Size * board.cols - AsnarcJSRenderer.Border,
       board.rows * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border)
+  }
+
+  /**
+    * Draws a text in the middle of the game area. The text is written in the current style and color.
+    *
+    * @param board the board canvas on which the text is drawn
+    * @param text  the text
+    */
+  def drawCenterText(board: AsnarcBoard, text: String): Unit = {
+    renderer.textAlign = "center"
+    renderer.textBaseline = "middle"
+    renderer.fillText(text, board.cols * AsnarcJSRenderer.Size / 2, board.rows * AsnarcJSRenderer.Size / 2)
   }
 
 }
