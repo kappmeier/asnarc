@@ -2,10 +2,10 @@ package de.kappmeier.asnarc.render
 
 import de.kappmeier.asnarc.board.{AsnarcBoard, Direction}
 import de.kappmeier.asnarc.elements._
-import de.kappmeier.asnarc.game.AsnarcWorld
+import de.kappmeier.asnarc.render.AsnarcJSRenderer.stripSimpleName
 import de.kappmeier.asnarc.render.localization.AsnarcLocalization
 import org.scalajs.dom
-import org.scalajs.dom.html
+import org.scalajs.dom. html
 
 /**
   * Provides helper methods for the canvas to draw on.
@@ -42,11 +42,10 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     */
   def drawBoard(board: AsnarcBoard): Unit = {
     for {(_, e) <- board.map} {
-      val color = AsnarcJSRenderer.DrawColors.getOrElse(e.getClass.getSimpleName, "yellow")
+      val color = AsnarcJSRenderer.DrawColors.getOrElse(stripSimpleName(e.getClass.getSimpleName), "black")
       renderer.fillStyle = color
       fillElement(e)
     }
-
   }
 
   /**

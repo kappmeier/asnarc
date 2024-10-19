@@ -2,6 +2,7 @@ package de.kappmeier.asnarc.render
 
 import de.kappmeier.asnarc.board.AsnarcBoard
 import de.kappmeier.asnarc.elements.Element
+import de.kappmeier.asnarc.render.AsnarcJSRenderer.stripSimpleName
 import de.kappmeier.asnarc.render.localization.AsnarcLocalization
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -29,7 +30,7 @@ class AsnarcJSEditorRenderer(boardCanvas: html.Canvas, detailsCanvas: html.Canva
   def highlightElement(element: Element): Unit = {
     rendererDetails.clearRect(0, 0, detailsCanvas.width, detailsCanvas.height)
     if (element.p.x >= 0 && element.p.y >= 0) {
-      val color = AsnarcJSRenderer.DrawColors.getOrElse(element.getClass.getSimpleName, "yellow")
+      val color = AsnarcJSRenderer.DrawColors.getOrElse(stripSimpleName(element.getClass.getSimpleName), "black")
       rendererDetails.fillStyle = color
       AbstractAsnarcJSRenderer.fillElementAt(rendererDetails, 0, 0, element, scale)
       highlightElement(element.p.x, element.p.y)
