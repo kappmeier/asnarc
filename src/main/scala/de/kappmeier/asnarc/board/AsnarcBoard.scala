@@ -47,8 +47,8 @@ object AsnarcBoard {
     // Init
     val levelGenerator = new LevelGenerator()
 
-    val wall: mutable.Queue[Element] = levelGenerator.generateBoard64(level)
-    wall.foreach(element => mutableMap += (element.p -> element.asInstanceOf[Wall]))
+    val elements: mutable.Queue[Element] = levelGenerator.generateBoard64(level)
+    elements.foreach(element => mutableMap += (element.p -> element))
 
     mutableMap.toMap
   }
