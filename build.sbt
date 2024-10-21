@@ -1,20 +1,19 @@
-enablePlugins(ScalaJSPlugin) // , WorkbenchPlugin
+enablePlugins(ScalaJSPlugin)
 
 name := "Asnarc"
 
 version := "1.0"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.13.14"
 
 // This is an application with a main method
 scalaJSUseMainModuleInitializer := false
 
 libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "0.9.6",
-  "com.lihaoyi" %%% "scalatags" % "0.6.5",
+  "org.scala-js" %%% "scalajs-dom" % "2.2.0",
 
   // Tests
-  "org.scalatest" %%% "scalatest" % "3.0.5" % "test"
+  "org.scalatest" %%% "scalatest" % "3.2.19" % "test"
 )
 
 coverageExcludedPackages := ".*AsnarcJSRenderer.*"
