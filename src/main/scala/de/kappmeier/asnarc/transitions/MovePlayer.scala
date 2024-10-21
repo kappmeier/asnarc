@@ -11,14 +11,14 @@ case class MovePlayer() extends StateTransition with WorldTransition {
 
         val (newPlayer, removedElement): (Player, SnakeElement) = gameWorld.player.step(newPlayerPos)
         val tempBoard = gameWorld.board
-                .removeElement(removedElement)
-                .removeElement(gameWorld.player.snakeHead())
-                .addElement(newPlayer.snakeHead())
+                .removeDynamicElement(removedElement)
+                .removeDynamicElement(gameWorld.player.snakeHead())
+                .addDynamicElement(newPlayer.snakeHead())
 
         gameWorld.copy(
-            board = if (newPlayer.length() == 1) tempBoard else tempBoard.addElement(newPlayer.elementAt(1)),
-            entities = gameWorld.entities.-(gameWorld.player).+(newPlayer),
-            player = newPlayer
-        )
+          board = if (newPlayer.length() == 1) tempBoard else tempBoard.addDynamicElement(newPlayer.elementAt(1)),
+          entities = gameWorld.entities.-(gameWorld.player).+(newPlayer),
+          player = newPlayer
+          )
     }
 }
