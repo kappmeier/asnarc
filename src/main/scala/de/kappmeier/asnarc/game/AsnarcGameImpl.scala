@@ -32,8 +32,8 @@ class AsnarcGameImpl(level: String) extends AsnarcGame {
       new SpecialFoodSpawnTimer(timeBetween, timeBetween, timeExist), player)
     val state = AsnarcWorld(createdBoard, player, createdEntities, dead = false)
 
-    state.copy(board = state.board.addElement(initialFood),
-      entities = state.entities + initialFood)
+    state.copy(board = state.board.addDynamicElement(initialFood),
+               entities = state.entities + initialFood)
   }
 
   /**

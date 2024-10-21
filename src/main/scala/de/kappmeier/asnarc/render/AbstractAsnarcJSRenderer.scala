@@ -41,7 +41,7 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
     * @param board the game board
     */
   def drawBoard(board: AsnarcBoard): Unit = {
-    for {(_, e) <- board.map} {
+    for {(_, e) <- (board.staticMap ++ board.dynamicMap)} {
       val color = AsnarcJSRenderer.DrawColors.getOrElse(stripSimpleName(e.getClass.getSimpleName), "black")
       renderer.fillStyle = color
       fillElement(e)

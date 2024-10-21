@@ -38,10 +38,10 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
         }
     }
 
-    def renderStart(gameWorld: AsnarcWorld): Unit = {
+    private def renderStart(gameWorld: AsnarcWorld): Unit = {
         val color = AsnarcJSRenderer.DrawColors.getOrElse(Wall.getClass.getSimpleName, "black")
         renderer.fillStyle = color
-        gameWorld.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
+        gameWorld.board.staticMap.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
 
         switchStyle(AsnarcJSRenderer.InfoFont)
         drawCenterText(gameWorld.board, loc.stateMessageStart)
