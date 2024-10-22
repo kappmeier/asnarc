@@ -11,14 +11,12 @@ import org.scalajs.dom.html
   */
 class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends AbstractAsnarcJSRenderer(canvas, loc) {
 
-    val a: Class[_] = Food.getClass
-
-    val gameOverFont: RendererTextStyle = RendererTextStyle("sans-serif", 20, "darkred")
+    private val gameOverFont: RendererTextStyle = RendererTextStyle("sans-serif", 20, "darkred")
 
     canvas.width = canvas.parentElement.clientWidth
     canvas.height = canvas.parentElement.clientHeight
 
-    def render(gameWorld: AsnarcWorld, asnarcState: AsnarcState) {
+    def render(gameWorld: AsnarcWorld, asnarcState: AsnarcState): Unit = {
         clear()
 
         asnarcState match {
@@ -38,16 +36,16 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
         }
     }
 
-    def renderStart(gameWorld: AsnarcWorld): Unit = {
+    private def renderStart(gameWorld: AsnarcWorld): Unit = {
         val color = AsnarcJSRenderer.DrawColors.getOrElse(Wall.getClass.getSimpleName, "black")
         renderer.fillStyle = color
-        gameWorld.board.map.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
+        gameWorld.board.staticMap.withFilter { tuple => tuple._2.isInstanceOf[Wall] }.foreach { tuple => fillElement(tuple._2) }
 
         switchStyle(AsnarcJSRenderer.InfoFont)
         drawCenterText(gameWorld.board, loc.stateMessageStart)
     }
 
-    def renderMove(gameWorld: AsnarcWorld): Unit = {
+    private def renderMove(gameWorld: AsnarcWorld): Unit = {
         // Draw background
       drawBoard(gameWorld.board)
     }
@@ -73,7 +71,7 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
       *
       * @param gameWorld the board canvas
       */
-    def renderPause(gameWorld: AsnarcWorld): Unit = {
+    private def renderPause(gameWorld: AsnarcWorld): Unit = {
         switchStyle(AsnarcJSRenderer.InfoFont)
         drawCenterText(gameWorld.board, loc.stateMessagePause)
     }
@@ -83,7 +81,7 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends
       *
       * @param gameWorld the board canvas
       */
-    def renderGameOver(gameWorld: AsnarcWorld): Unit = {
+    private def renderGameOver(gameWorld: AsnarcWorld): Unit = {
         switchStyle(gameOverFont)
         drawCenterText(gameWorld.board, loc.stateMessageGameOver)
     }
