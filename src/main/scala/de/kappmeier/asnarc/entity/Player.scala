@@ -5,6 +5,7 @@ import de.kappmeier.asnarc.board.Point
 import de.kappmeier.asnarc.elements._
 import de.kappmeier.asnarc.game.AsnarcWorld
 import de.kappmeier.asnarc.transitions._
+import org.scalajs.dom.console
 
 import scala.collection.immutable.{Queue, Set}
 
@@ -109,15 +110,16 @@ class Player private(head: SnakeHead, val moveDirection: Direction, private val 
       * @return the list of state transitions that should be applied to the game world
       */
     override def update(gameWorld: AsnarcWorld): Seq[StateTransition] = {
-        val nextElement: Element = gameWorld.board.elementAt(Player.nextPos(gameWorld))
+            val nextElement: Element = gameWorld.board.elementAt(Player.nextPos(gameWorld))
 
-        nextElement match {
-            case _: Wall => Seq(Death())
-            case _: SnakeElement => Seq(Death())
-            case _: Food => Seq(AppendSnake())
-            case _: SpecialFood => Seq(AppendSnake(full = true))
-            case _ => Seq(MovePlayer())
-        }
+            nextElement match {
+                case _: Wall => Seq(Death())
+                case _: SnakeElement => Seq(Death())
+                case _: Food => Seq(AppendSnake())
+                case _: SpecialFood => Seq(AppendSnake(full = true))
+                case t: Teleport => Seq(TeleportPlayer())
+                case _ => Seq(MovePlayer())
+            }
     }
 
 
