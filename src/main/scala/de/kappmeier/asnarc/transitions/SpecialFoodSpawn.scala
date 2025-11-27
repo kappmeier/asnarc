@@ -17,6 +17,6 @@ case class SpecialFoodSpawn(timeExist: Int) extends StateTransition with WorldTr
     val disappearAt = gameWorld.time + timeExist
     val specialFood = SpecialFood(foodPosition, disappearAt)
 
-    gameWorld.copy(board = gameWorld.board.addElement(specialFood), entities = gameWorld.entities + specialFood)
+    gameWorld.copy(board = gameWorld.board.addDynamicElement(specialFood), entities = gameWorld.entities + specialFood)
   }
 }
