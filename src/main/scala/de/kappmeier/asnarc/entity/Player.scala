@@ -48,7 +48,7 @@ class Player private(head: SnakeHead, val moveDirection: Direction, private val 
     }
 
     def turnTo(d: Direction): Player = {
-      new Player(head, d, body, false) // Reset teleport flag on direction change
+        new Player(head, d, body, false) // Reset teleport flag on direction change
     }
 
     /**
@@ -64,7 +64,7 @@ class Player private(head: SnakeHead, val moveDirection: Direction, private val 
         val newBody: (SnakeElement, Queue[SnakeElement]) = enlargeBody().dequeue
 
         // Return a new player instance
-      (new Player(newHead, moveDirection, newBody._2, false), if (newBody._2.isEmpty) head else newBody._1)
+        (new Player(newHead, moveDirection, newBody._2, false), if (newBody._2.isEmpty) head else newBody._1)
     }
 
     /**
@@ -82,7 +82,7 @@ class Player private(head: SnakeHead, val moveDirection: Direction, private val 
         val newBody: Queue[SnakeElement] = enlargeBody()
 
         // Return a new player instance
-      new Player(newHead, moveDirection, newBody, false)
+        new Player(newHead, moveDirection, newBody, false)
     }
 
 
@@ -106,32 +106,32 @@ class Player private(head: SnakeHead, val moveDirection: Direction, private val 
       *
       * Observe that the logic for all elements is handled in this class, i.e. the `Player` creates a teleport action
       * when the object is on a [[Teleport]] field. The `Player` also detects its upcoming [[Death]] in front of a
-     * [[Wall]].
+      * [[Wall]].
       *
       * @param gameWorld the read only game world
       * @return the list of state transitions that should be applied to the game world
       */
     override def update(gameWorld: AsnarcWorld): Seq[StateTransition] = {
-            val currentPos = gameWorld.player.snakeHead().p
+        val currentPos = gameWorld.player.snakeHead().p
 
-            // Check if the player is currently on a teleport
-            if (!justTeleported) {
-                val underneathElement = gameWorld.board.staticMap.get(currentPos)
-                underneathElement match {
-                    case Some(t: Teleport) => return Seq(TeleportPlayer(t))
-                    case _ => // Continue with normal movement
-                }
+        // Check if the player is currently on a teleport
+        if (!justTeleported) {
+            val underneathElement = gameWorld.board.staticMap.get(currentPos)
+            underneathElement match {
+                case Some(t: Teleport) => return Seq(TeleportPlayer(t))
+                case _ => // Continue with normal movement
             }
+        }
 
-            val nextElement: Element = gameWorld.board.elementAt(Player.nextPos(gameWorld))
+        val nextElement: Element = gameWorld.board.elementAt(Player.nextPos(gameWorld))
 
-            nextElement match {
-                case _: Wall => Seq(Death())
-                case _: SnakeElement => Seq(Death())
-                case _: Food => Seq(AppendSnake())
-                case _: SpecialFood => Seq(AppendSnake(full = true))
-                case _ => Seq(MovePlayer())
-            }
+        nextElement match {
+            case _: Wall => Seq(Death())
+            case _: SnakeElement => Seq(Death())
+            case _: Food => Seq(AppendSnake())
+            case _: SpecialFood => Seq(AppendSnake(full = true))
+            case _ => Seq(MovePlayer())
+        }
     }
 
 
