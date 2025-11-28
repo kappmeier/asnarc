@@ -32,6 +32,6 @@ case class TeleportPlayer(startTeleport: Teleport) extends StateTransition with 
       },
       entities = gameWorld.entities.-(gameWorld.player).+(newPlayer),
       player = newPlayer
-      )
+    )
   }
 }
