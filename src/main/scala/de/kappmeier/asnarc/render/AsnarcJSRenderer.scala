@@ -14,7 +14,8 @@ object AsnarcJSRenderer {
     stripSimpleName(Wall.getClass.getSimpleName) -> "black",
     stripSimpleName(SnakeElement.getClass.getSimpleName) -> "darkgreen",
     stripSimpleName(SpecialFood.getClass.getSimpleName) -> "orange",
-    stripSimpleName(SnakeHead.getClass.getSimpleName) -> "green"
+    stripSimpleName(SnakeHead.getClass.getSimpleName) -> "green",
+    stripSimpleName(Teleport.getClass.getSimpleName) -> "blue"
     )
 
   val InformationStyle: RendererTextStyle = RendererTextStyle("sans-serif", 12, "black")
