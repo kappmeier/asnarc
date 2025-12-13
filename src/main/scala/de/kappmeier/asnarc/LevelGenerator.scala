@@ -28,22 +28,30 @@ import scala.collection.mutable
  */
 case class LevelGenerator() {
   /** The decoder. */
-  val decoder = Base64.getDecoder
+  private val decoder: Base64.Decoder = Base64.getDecoder
   /** The encoder. */
-  val encoder = Base64.getEncoder
+  private val encoder: Base64.Encoder = Base64.getEncoder
 
-  def generateBoard64(levelInput: String): mutable.Queue[Element] = {
+  /**
+   * Generates the fixed level elements belonging to a level given as Base64 encoded `String`. These elements comprise
+   * [[Wall]] and [[Teleport]].
+   *
+   * @param levelInput the input as Base64 encoded string
+   * @return the static initial definition of a level
+   */
+  def generateBoard64Elements(levelInput: String): mutable.Queue[Element] = {
     val decoded = new String(decoder.decode(levelInput))
-    generateBoard(decoded)
+    generateBoardElements(decoded)
   }
 
   /**
-   * Generates the [[Wall]] elements belonging to a level given as `String`.
+   * Generates the fixed level elements belonging to a level given as `String`. These elements comprise [[Wall]] and
+   * [[Teleport]].
    *
    * @param levelInput the input as string
    * @return the static initial definition of a level
    */
-  def generateBoard(levelInput: String): mutable.Queue[Element] = {
+  private def generateBoardElements(levelInput: String): mutable.Queue[Element] = {
     val input: Seq[(Point, Char)] = breakBlocks(levelInput).map(x => breakBlock(x))
     val builder: mutable.Builder[Element, mutable.Queue[Element]] = mutable.Queue.newBuilder
     builder ++= input.map {
@@ -70,7 +78,7 @@ case class LevelGenerator() {
 
 object LevelGenerator {
   /**
-   * Base64 encoding of an empty level.
+   * Base64 encoding of an empty level. (`0,0,`).
    */
   val EmptyLevel = "MCwwLCA="
 

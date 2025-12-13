@@ -89,13 +89,19 @@ class AsnarcBoard(val staticMap: scala.collection.immutable.Map[Point, Element],
 }
 
 object AsnarcBoard {
+  /**
+   * Generates the static map from coordinates to elements for a level.
+   *
+   * @param level Base64 encoded level definition
+   * @return the board for a level as map
+   */
   private def getFromLevel(level: String): scala.collection.immutable.Map[Point, Element] = {
     val mutableMap: scala.collection.mutable.HashMap[Point, Element] = new mutable.HashMap[Point, Element]()
 
     // Init
     val levelGenerator = new LevelGenerator()
 
-    val elements: mutable.Queue[Element] = levelGenerator.generateBoard64(level)
+    val elements: mutable.Queue[Element] = levelGenerator.generateBoard64Elements(level)
     elements.foreach(element => mutableMap += (element.p -> element))
 
     mutableMap.toMap
