@@ -20,7 +20,7 @@ import scala.collection.mutable
  * The whole description of the board consists of a list of `;` separated list of the aforementioned 3 tuples, i.e.
  * `0,0,┌;59,39,┘;0,1,│`
  *
- * The following types are available: '─', '│', '┌', '┐', '┘', '└', '├', '┬', '┤', '┴', '┼', ' '
+ * The following types are available: '─', '│', '┌', '┐', '┘', '└', '├', '┬', '┤', '┴', '┼', ' ', 'T'
  *
  * All elements but the last one represent a filled block which is supposed to be connected with 1 or more neighbour
  * blocks. The last block represents an empty field. It is not required to submit empty fields, every field not
@@ -55,7 +55,7 @@ case class LevelGenerator() {
     val input: Seq[(Point, Char)] = breakBlocks(levelInput).map(x => breakBlock(x))
     val builder: mutable.Builder[Element, mutable.Queue[Element]] = mutable.Queue.newBuilder
     builder ++= input.map {
-      case (location, element) if element == 'T' => Teleport(location, Set())
+      case (location, element) if element == 'T' => Teleport(location, Set(), None)
       case (location, element) => Wall(location, LevelGenerator.BoundMap(element))
     }
     builder.result()
