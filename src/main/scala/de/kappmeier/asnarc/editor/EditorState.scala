@@ -1,6 +1,6 @@
 package de.kappmeier.asnarc.editor
 
-import de.kappmeier.asnarc.board.Point
+import de.kappmeier.asnarc.board.{AsnarcBoard, Point}
 import de.kappmeier.asnarc.elements.{Element, Empty, Teleport, Wall}
 
 /**
@@ -84,5 +84,30 @@ case class EditorState(width: Int, height: Int,
       case _ =>
         copy(cells = cells - p)
     }
+  }
+}
+
+object EditorState {
+  def toAsnarcBoard(state: EditorState): AsnarcBoard = {
+    new AsnarcBoard(state.cells, Map.empty)
+  }
+
+  /**
+    * Creates an EditorState from a base64 encoded level string.
+    *
+    * @param level the base64 encoded level
+    * @return a new EditorState with the level loaded
+    */
+  def fromLevel(level: String): EditorState = {
+    val board = new AsnarcBoard(level)
+    val cells = board.staticMap
+    val width = board.cols
+    val height = board.rows
+
+    // Find unpaired teleports
+    val teleports = cells.collect { case (p, t: Teleport) => (p, t) }
+    val unpaired = teleports.collectFirst { case (p, Teleport(_, _, None)) => p }
+
+    EditorState(width, height, cells, unpaired)
   }
 }
