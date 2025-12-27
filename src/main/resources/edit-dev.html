@@ -3,15 +3,16 @@
 <head>
   <title>Asnarc Editor</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="stylesheet" type="text/css" href="editor.css"/>
 </head>
 <body style="margin: 0px">
 
-<div style="width: 900px; height: 600px;">
-    <div style="float: left; width: 600px; height: 600px;">
-        <canvas style="display: inline" id="canvas" width="600" height="600" tabindex="1"></canvas>
+<div class="editor-container">
+    <div class="editor-canvas-container">
+        <canvas id="canvas" width="600" height="600" tabindex="1"></canvas>
     </div>
-    <div id="edit" style="width:300px; height: 600px; float: left; box-sizing: border-box; border-style: solid; border-width: 2px;">
-        <div style="display: inline; width: 300px; height: 300px;" id="canvas-details" width="300" height="300"></div>
+    <div id="edit" class="editor-details-container">
+        <div id="canvas-details"></div>
     </div>
 </div>
 
