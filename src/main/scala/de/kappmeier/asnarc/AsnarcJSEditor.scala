@@ -2,11 +2,14 @@ package de.kappmeier.asnarc
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
-import de.kappmeier.asnarc.board.Point
-import de.kappmeier.asnarc.editor.{EditorState, TeleportPairManager}
-import de.kappmeier.asnarc.elements.{Empty, Teleport, Wall}
 import org.scalajs.dom
 import org.scalajs.dom.{document, html}
+
+import de.kappmeier.asnarc.board.Point
+import de.kappmeier.asnarc.editor.{EditorState, TeleportPairManager}
+import de.kappmeier.asnarc.elements.Wall
+import de.kappmeier.asnarc.render.AsnarcJSEditorRenderer
+import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 
 /**
   * The ScalaJS export for Asnarc editor. Renders the board, waits for user input and updates the board.
@@ -17,16 +20,38 @@ import org.scalajs.dom.{document, html}
 object AsnarcJSEditor {
 
   private var state: EditorState = EditorState(20, 15)
-  private var gridContainer: html.Div = _
+  private var renderer: AsnarcJSEditorRenderer = _
+  private var boardCanvas: html.Canvas = _
+  private var detailsContainer: html.Div = _
   private var statusLabel: html.Span = _
 
   private val MinimumSize = 5
   private val MaximumSize = 100
 
+  /**
+    * Alternative entry point that uses existing canvas elements from the HTML.
+    *
+    * @param board   the main canvas for the game board
+    * @param details the container for element details
+    * @param level   base64 encoded level string
+    */
   @JSExport
-  def main(container: html.Div): Unit = {
-    setupUI(container)
-    renderGrid()
+  def main(board: html.Canvas, details: html.Div, level: String): Unit = {
+    println(s"Loading level...")
+    state = EditorState.fromLevel(level)
+    println(s"Loaded a board of size ${state.width}x${state.height}")
+
+    boardCanvas = board
+    detailsContainer = details
+
+    setupUI(detailsContainer)
+
+    val localization = new AsnarcLocalizationDe
+    renderer = new AsnarcJSEditorRenderer(boardCanvas, localization)
+
+    boardCanvas.onclick = (e: dom.MouseEvent) => handleCanvasClick(e)
+
+    render()
   }
 
   private def setupUI(container: html.Div): Unit = {
@@ -46,14 +71,8 @@ object AsnarcJSEditor {
       val w = widthInput.value.toInt
       val h = heightInput.value.toInt
       state = EditorState(w, h)
-      renderGrid()
-      updateStatus()
+      render()
     }
-
-    val exportButton = document.createElement("button").asInstanceOf[html.Button]
-    exportButton.textContent = "Export level"
-    exportButton.className = "editor-button"
-    exportButton.onclick = (_: dom.MouseEvent) => exportLevel()
 
     statusLabel = document.createElement("span").asInstanceOf[html.Span]
     statusLabel.className = "editor-status"
@@ -61,16 +80,30 @@ object AsnarcJSEditor {
     controls.appendChild(widthInput.parentElement)
     controls.appendChild(heightInput.parentElement)
     controls.appendChild(createButton)
-    controls.appendChild(exportButton)
     controls.appendChild(statusLabel)
 
-    // Set up the grid container
-    gridContainer = document.createElement("div").asInstanceOf[html.Div]
-    gridContainer.className = "editor-grid-container"
-
     container.appendChild(controls)
-    container.appendChild(gridContainer)
+    boardCanvas.onclick = (e: dom.MouseEvent) => handleCanvasClick(e)
+  }
 
+  private def handleCanvasClick(e: dom.MouseEvent): Unit = {
+    val cellSize = Math.min((boardCanvas.width / state.width), (boardCanvas.height / state.height))
+
+    val rect = boardCanvas.getBoundingClientRect()
+    val x = ((e.clientX - rect.left) / cellSize).toInt
+    val y = ((e.clientY - rect.top) / cellSize).toInt
+    val point = Point(x, y)
+
+    if (x >= 0 && x < state.width && y >= 0 && y < state.height) {
+      state = state.rotateCellAt(point)
+      render()
+      renderer.highlight(x, y)
+    }
+  }
+
+  private def render(): Unit = {
+    val board = EditorState.toAsnarcBoard(state)
+    renderer.renderBoard(board, s"${state.width}x${state.height}")
     updateStatus()
   }
 
@@ -93,60 +126,6 @@ object AsnarcJSEditor {
     input
   }
 
-  private def renderGrid(): Unit = {
-    gridContainer.innerHTML = ""
-
-    val grid = document.createElement("div").asInstanceOf[html.Div]
-    grid.className = "editor-grid"
-    grid.style.setProperty("grid-template-columns", s"repeat(${state.width}, 20px)")
-    grid.style.setProperty("grid-template-rows", s"repeat(${state.height}, 20px)")
-
-    // Seems that gridTemplateColumns and gridTemplateRows are not in the Scala.js DOM
-    // grid.style.gridTemplateColumns = s"repeat(${state.width}, 20px)"
-    // grid.style.gridTemplateRows = s"repeat(${state.height}, 20px)"
-
-    for {
-      y <- 0 until state.height
-      x <- 0 until state.width
-    } {
-      val cell = document.createElement("div").asInstanceOf[html.Div]
-      val point = Point(x, y)
-      cell.className = getCellClass(point)
-      cell.dataset.update("x", x.toString)
-      cell.dataset.update("y", y.toString)
-
-      cell.onclick = (_: dom.MouseEvent) => {
-        state = state.rotateCellAt(point)
-        renderGrid()
-        updateStatus()
-      }
-
-      // Tool tip for teleports
-      state.cells.get(point) match {
-        case Some(Teleport(_, _, Some(partner))) =>
-          cell.title = s"Connected with mit (${partner.x}, ${partner.y})"
-        case Some(Teleport(_, _, None)) =>
-          cell.title = "Unpaired teleport"
-        case _ =>
-      }
-
-      grid.appendChild(cell)
-    }
-
-    gridContainer.appendChild(grid)
-  }
-
-  private def getCellClass(p: Point): String = {
-    val baseClass = "editor-cell"
-    val typeClass = state.cells.getOrElse(p, Empty) match {
-      case Empty => "cell-empty"
-      case Wall(_, _) => "cell-wall"
-      case Teleport(_, _, None) => "cell-teleport cell-unpaired"
-      case Teleport(_, _, Some(_)) => "cell-teleport cell-paired"
-    }
-    s"$baseClass $typeClass"
-  }
-
   private def updateStatus(): Unit = {
     val pairs = TeleportPairManager.findPairs(state)
     val unpaired = TeleportPairManager.findUnpaired(state)
@@ -156,24 +135,15 @@ object AsnarcJSEditor {
     statusText.append(s"Size: ${state.width}x${state.height} | ")
     statusText.append(s"Walls: $wallCount | ")
     statusText.append(s"Teleport pairs: ${pairs.size}")
-
-    if (unpaired.isDefined) {
-      statusText.append(s" | ⚠ Unpaired teleport at ${unpaired.get}")
-      statusLabel.className = "editor-status status-warning"
-    } else {
-      statusLabel.className = "editor-status status-ok"
-    }
+    statusText.append(unpaired.map(u => s" | ⚠ Unpaired teleport at $u").getOrElse(""))
 
     statusLabel.textContent = statusText.toString()
+    statusLabel.className = s"editor-status ${
+      if (unpaired.isDefined) {
+        "status-warning"
+      } else {
+        "status-ok"
+      }
+    }"
   }
-
-  private def exportLevel(): Unit = {
-    TeleportPairManager.validate(state) match {
-      case Left(error) =>
-        dom.window.alert(s"Export not possible: $error")
-      case Right(_) =>
-        dom.window.alert(s"Export not implemented yet.")
-    }
-  }
-
 }
