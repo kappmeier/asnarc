@@ -140,7 +140,7 @@ class Player private(head: SnakeHead, val moveDirection: Direction, private val 
 
 object Player {
     def nextPos(gameWorld: AsnarcWorld): Point = {
-        (gameWorld.player.snakeHead().p + gameWorld.player.moveDirection.direction) % (60, 40)
+        (gameWorld.player.snakeHead().p + gameWorld.player.moveDirection.direction) % (gameWorld.board.cols, gameWorld.board.rows)
     }
 
   /**
