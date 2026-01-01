@@ -1,18 +1,23 @@
 package de.kappmeier.asnarc
 
-import de.kappmeier.asnarc.board.Direction
+import de.kappmeier.asnarc.board.{AsnarcBoard, Direction}
 import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.game.{AsnarcGameImpl, AsnarcWorld}
 import de.kappmeier.asnarc.render.AsnarcJSGameRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 import org.scalajs.dom
 import org.scalajs.dom.html
-
 import scala.collection.mutable
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
+import de.kappmeier.asnarc.levels.PredefinedLevels
+
 /**
   * Different game states to render.
+  *
+  * The level parameter can be either:
+  * - A named level (e.g., "Empty", see [[PredefinedLevels]] for available levels)
+  * - A raw Base64 encoded level string
   */
 object AsnarcState extends Enumeration {
   type AsnarcState = Value
@@ -29,7 +34,20 @@ object AsnarcJS {
 
   @JSExport
   def main(canvas: html.Canvas, level: String): Unit = {
-    val asnarcGame: AsnarcGameImpl = new AsnarcGameImpl(level)
+    val resolvedLevel: String = PredefinedLevels.resolve(level) match {
+      case Some(decodedLevel) => {
+        dom.console.log(s"Using named level: ${level}")
+        decodedLevel
+      }
+      case None => {
+        dom.console.log(s"Using custom level data")
+        level
+      }
+    }
+
+    println("Base64 encoded level: '" + resolvedLevel + "'")
+
+    val asnarcGame: AsnarcGameImpl = new AsnarcGameImpl(resolvedLevel)
 
     var asnarcState = AsnarcState.Running
     var gameWorld: AsnarcWorld = asnarcGame.initGameWorld()
