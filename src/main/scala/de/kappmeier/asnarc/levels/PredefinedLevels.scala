@@ -36,16 +36,6 @@ object PredefinedLevels {
     "Border",
     "A level with walls around the border",
     // Simple border walls encoded
-    "MCwwLOKUjDsxLDAs4pSAOzIsMCzilIA7MywwLOKUgDs0LDAs4pSQOzAsMSzilII7NCwxLOKUgjs" +
-      "wLDIs4pSUOzEsMizilIA7MiwyLOKUgDszLDIs4pSAOzQsMizilJg="
-    )
-
-  /**
-    * A level with teleporters.
-    */
-  val Small: NamedLevel = NamedLevel(
-    "Small",
-    "A small level with open walls teleport fields",
     "MCwwLOKUjDsxLDAs4pSAOzIsMCzilIA7MywwLOKUgDs0LDAs4pSAOzUsMCzilIA7NiwwLOKUgDs3" +
       "LDAs4pSAOzgsMCzilIA7OSwwLOKUgDsxMCwwLOKUgDsxMSwwLOKUgDsxMiwwLOKUgDsxMywwLOKU" +
       "gDsxNCwwLOKUgDsxNSwwLOKUgDsxNiwwLOKUgDsxNywwLOKUgDsxOCwwLOKUgDsxOSwwLOKUgDsy" +
@@ -63,6 +53,28 @@ object PredefinedLevels {
       "LOKUgjszMCw5LOKUgjszMCwxMCzilII7MzAsMTEs4pSCOzMwLDEyLOKUgjszMCwxMyzilII7MzAs" +
       "MTQs4pSCOzMwLDE1LOKUgjszMCwxNizilII7MzAsMTcs4pSCOzMwLDE4LOKUgjszMCwxOSzilII7" +
       "MTAsMTAsVDsyMCwxMCxUCg=="
+    )
+
+  /**
+    * A level with teleporters.
+    */
+  val Small: NamedLevel = NamedLevel(
+    "Small",
+    "A small level with open walls teleport fields",
+    "MCwwLOKUjDsxLDAs4pSAOzIsMCzilIA7MywwLOKUgDs0LDAs4pSAOzUsMCzilIA7NiwwLOKUgDs3" +
+      "LDAs4pSAOzgsMCzilIA7OSwwLOKUgDsxMCwwLOKUgDsxMSwwLOKUgDsxMiwwLOKUgDsxNywwLOKU" +
+      "gDsxOCwwLOKUgDsxOSwwLOKUgDsyMCwwLOKUgDsyMSwwLOKUgDsyMiwwLOKUgDsyMywwLOKUgDsy" +
+      "NCwwLOKUgDsyNSwwLOKUgDsyNiwwLOKUgDsyNywwLOKUgDsyOCwwLOKUgDsyOSwwLOKUgDszMCww" +
+      "LOKUkDswLDIwLOKUlDsxLDIwLOKUgDsyLDIwLOKUgDszLDIwLOKUgDs0LDIwLOKUgDs1LDIwLOKU" +
+      "gDs2LDIwLOKUgDs3LDIwLOKUgDs4LDIwLOKUgDs5LDIwLOKUgDsxMCwyMCzilIA7MTEsMjAs4pSA" +
+      "OzEyLDIwLOKUgDsxNywyMCzilIA7MTgsMjAs4pSAOzE5LDIwLOKUgDsyMCwyMCzilIA7MjEsMjAs" +
+      "4pSAOzIyLDIwLOKUgDsyMywyMCzilIA7MjQsMjAs4pSAOzI1LDIwLOKUgDsyNiwyMCzilIA7Mjcs" +
+      "MjAs4pSAOzI4LDIwLOKUgDsyOSwyMCzilIA7MzAsMjAs4pSYOzAsMSzilII7MCwyLOKUgjswLDMs" +
+      "4pSCOzAsNCzilII7MCw1LOKUgjswLDYs4pSCOzAsNyzilII7MCw4LOKUgjswLDEyLOKUgjswLDEz" +
+      "LOKUgjswLDE0LOKUgjswLDE1LOKUgjswLDE2LOKUgjswLDE3LOKUgjswLDE4LOKUgjswLDE5LOKU" +
+      "gjszMCwxLOKUgjszMCwyLOKUgjszMCwzLOKUgjszMCw0LOKUgjszMCw1LOKUgjszMCw2LOKUgjsz" +
+      "MCw3LOKUgjszMCw4LOKUgjszMCwxMizilII7MzAsMTMs4pSCOzMwLDE0LOKUgjszMCwxNSzilII7" +
+      "MzAsMTYs4pSCOzMwLDE3LOKUgjszMCwxOCzilII7MzAsMTks4pSCOzEwLDEwLFQ7MjAsMTAsVAo="
     )
 
   /**
