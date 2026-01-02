@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Asnarc Scala.js</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Asnarc Scala.js</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body style="margin: 0px">
 
+<div>
+    <label for="levelSelect">Level wählen:</label>
+    <select id="levelSelect"></select>
+</div>
 <div style="width: 600px; height=600px;">
     <canvas style="display: inline" id="canvas" width="600" height="600" tabindex="1"></canvas>
 </div>
 
 <script type="text/javascript" src="../asnarc-fastopt/main.js"></script>
 <script>
-    console.log(PredefinedLevels.availableLevels());
-    AsnarcJS.main(document.getElementById('canvas'), 'Big');
+    // Fill level selection dropdown
+    const levels = PredefinedLevels.availableLevels();
+    const select = document.getElementById('levelSelect');
+    levels.forEach(function(level) {
+        const option = document.createElement('option');
+        option.value = level;
+        option.text = level;
+        select.appendChild(option);
+    });
+
+    // Set an initial level and start the game
+    let currentLevel = 'Big';
+    AsnarcJS.main(document.getElementById('canvas'), currentLevel);
+
+    // When a new level is selected, start a new game
+    select.addEventListener('change', function() {
+        currentLevel = select.value;
+        AsnarcJS.main(document.getElementById('canvas'), currentLevel);
+    });
 </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package de.kappmeier.asnarc.levels
 
+import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 import de.kappmeier.asnarc.LevelGenerator
@@ -130,7 +131,7 @@ object PredefinedLevels {
     * Returns a list of all available predefined level names.
     */
   @JSExport
-  def availableLevels(): String = {
-    PredefinedLevels.All.map(l => s"${l.name}: ${l.description}").mkString("\n")
+  def availableLevels(): js.Array[String] = {
+    js.Array(PredefinedLevels.All.map(_.name): _*)
   }
 }
