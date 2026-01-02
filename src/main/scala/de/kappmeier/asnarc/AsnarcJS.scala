@@ -1,16 +1,18 @@
 package de.kappmeier.asnarc
 
-import de.kappmeier.asnarc.board.{AsnarcBoard, Direction}
-import de.kappmeier.asnarc.board.Direction.Direction
-import de.kappmeier.asnarc.game.{AsnarcGameImpl, AsnarcWorld}
-import de.kappmeier.asnarc.render.AsnarcJSGameRenderer
-import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
-import org.scalajs.dom
-import org.scalajs.dom.html
 import scala.collection.mutable
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+import scala.scalajs.js.timers.SetIntervalHandle
 
+import org.scalajs.dom
+import org.scalajs.dom.html
+
+import de.kappmeier.asnarc.board.Direction
+import de.kappmeier.asnarc.board.Direction.Direction
+import de.kappmeier.asnarc.game.{AsnarcGameImpl, AsnarcWorld}
 import de.kappmeier.asnarc.levels.PredefinedLevels
+import de.kappmeier.asnarc.render.AsnarcJSGameRenderer
+import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 
 /**
   * Different game states to render.
@@ -32,8 +34,15 @@ object AsnarcState extends Enumeration {
 @JSExportTopLevel("AsnarcJS")
 object AsnarcJS {
 
+  /**
+    * The current interval handle for the game loop. Needs to be stopped when a new game is loaded (by [[main]]).
+    */
+  private var currentIntervalHandle: Option[SetIntervalHandle] = None
+
   @JSExport
   def main(canvas: html.Canvas, level: String): Unit = {
+    cleanUp()
+
     val resolvedLevel: String = PredefinedLevels.resolve(level) match {
       case Some(decodedLevel) => {
         dom.console.log(s"Using named level: ${level}")
@@ -55,19 +64,19 @@ object AsnarcJS {
     val keys = new mutable.Queue[Direction]
     var turns = 0
 
-  /**
-    * Initializes Asnarc for a new round.
-    */
-  def initGame(): Unit = {
-    gameWorld = asnarcGame.initGameWorld()
-    asnarcState = AsnarcState.Running
-  }
+    /**
+      * Initializes Asnarc for a new round.
+      */
+    def initGame(): Unit = {
+      gameWorld = asnarcGame.initGameWorld()
+      asnarcState = AsnarcState.Running
+    }
 
     val localization = new AsnarcLocalizationDe
     val renderer: AsnarcJSGameRenderer = new AsnarcJSGameRenderer(canvas, localization)
     initGame()
 
-    scala.scalajs.js.timers.setInterval(100) {
+    currentIntervalHandle = Some(scala.scalajs.js.timers.setInterval(100) {
       if (asnarcState == AsnarcState.Running) {
         gameWorld = asnarcGame.nextFrame(gameWorld)
 
@@ -83,7 +92,7 @@ object AsnarcJS {
       }
 
       renderer.render(gameWorld, asnarcState)
-    }
+    })
 
     canvas.onclick = (e: dom.MouseEvent) => {
       asnarcState match {
@@ -117,5 +126,15 @@ object AsnarcJS {
           asnarcState = AsnarcState.Running
       }
     }
+  }
+
+  /**
+    * Cleans up potentially existing status from previous game runs. That is, calls to [[main]] from JavaScript.
+    *
+    * Cleaned up resources:
+    * - Game loop interval
+    */
+  private def cleanUp(): Unit = {
+    currentIntervalHandle.foreach(scala.scalajs.js.timers.clearInterval)
   }
 }
