@@ -47,19 +47,22 @@ object PredefinedLevels {
     "Small",
     "A small level with open walls teleport fields",
     "MCwwLOKUjDsxLDAs4pSAOzIsMCzilIA7MywwLOKUgDs0LDAs4pSAOzUsMCzilIA7NiwwLOKUgDs3" +
-      "LDAs4pSAOzgsMCzilIA7OSwwLOKUgDsxMCwwLOKUgDsxMSwwLOKUgDsxMiwwLOKUgDsxNywwLOKU" +
-      "gDsxOCwwLOKUgDsxOSwwLOKUgDsyMCwwLOKUgDsyMSwwLOKUgDsyMiwwLOKUgDsyMywwLOKUgDsy" +
-      "NCwwLOKUgDsyNSwwLOKUgDsyNiwwLOKUgDsyNywwLOKUgDsyOCwwLOKUgDsyOSwwLOKUgDszMCww" +
-      "LOKUkDswLDIwLOKUlDsxLDIwLOKUgDsyLDIwLOKUgDszLDIwLOKUgDs0LDIwLOKUgDs1LDIwLOKU" +
-      "gDs2LDIwLOKUgDs3LDIwLOKUgDs4LDIwLOKUgDs5LDIwLOKUgDsxMCwyMCzilIA7MTEsMjAs4pSA" +
-      "OzEyLDIwLOKUgDsxNywyMCzilIA7MTgsMjAs4pSAOzE5LDIwLOKUgDsyMCwyMCzilIA7MjEsMjAs" +
-      "4pSAOzIyLDIwLOKUgDsyMywyMCzilIA7MjQsMjAs4pSAOzI1LDIwLOKUgDsyNiwyMCzilIA7Mjcs" +
-      "MjAs4pSAOzI4LDIwLOKUgDsyOSwyMCzilIA7MzAsMjAs4pSYOzAsMSzilII7MCwyLOKUgjswLDMs" +
-      "4pSCOzAsNCzilII7MCw1LOKUgjswLDYs4pSCOzAsNyzilII7MCw4LOKUgjswLDEyLOKUgjswLDEz" +
-      "LOKUgjswLDE0LOKUgjswLDE1LOKUgjswLDE2LOKUgjswLDE3LOKUgjswLDE4LOKUgjswLDE5LOKU" +
-      "gjszMCwxLOKUgjszMCwyLOKUgjszMCwzLOKUgjszMCw0LOKUgjszMCw1LOKUgjszMCw2LOKUgjsz" +
-      "MCw3LOKUgjszMCw4LOKUgjszMCwxMizilII7MzAsMTMs4pSCOzMwLDE0LOKUgjszMCwxNSzilII7" +
-      "MzAsMTYs4pSCOzMwLDE3LOKUgjszMCwxOCzilII7MzAsMTks4pSCOzEwLDEwLFQ7MjAsMTAsVAo="
+      "LDAs4pSAOzgsMCzilIA7OSwwLOKUgDsxMCwwLOKUgDsxMSwwLOKUgDsxMiwwLOKUgDsxMywwLOKU" +
+      "gDsxNCwwLOKUgDsxNSwwLOKUgDsxNiwwLOKUgDsxNywwLOKUgDsxOCwwLOKUgDsxOSwwLOKUgDsy" +
+      "MCwwLOKUgDsyMSwwLOKUgDsyMiwwLOKUgDsyMywwLOKUgDsyNCwwLOKUgDsyNSwwLOKUgDsyNiww" +
+      "LOKUgDsyNywwLOKUgDsyOCwwLOKUgDsyOSwwLOKUgDszMCwwLOKUkDswLDIwLOKUlDsxLDIwLOKU" +
+      "gDsyLDIwLOKUgDszLDIwLOKUgDs0LDIwLOKUgDs1LDIwLOKUgDs2LDIwLOKUgDs3LDIwLOKUgDs4" +
+      "LDIwLOKUgDs5LDIwLOKUgDsxMCwyMCzilIA7MTEsMjAs4pSAOzEyLDIwLOKUgDsxMywyMCzilIA7" +
+      "MTQsMjAs4pSAOzE1LDIwLOKUgDsxNiwyMCzilIA7MTcsMjAs4pSAOzE4LDIwLOKUgDsxOSwyMCzi" +
+      "lIA7MjAsMjAs4pSAOzIxLDIwLOKUgDsyMiwyMCzilIA7MjMsMjAs4pSAOzI0LDIwLOKUgDsyNSwy" +
+      "MCzilIA7MjYsMjAs4pSAOzI3LDIwLOKUgDsyOCwyMCzilIA7MjksMjAs4pSAOzMwLDIwLOKUmDsw" +
+      "LDEs4pSCOzAsMizilII7MCwzLOKUgjswLDQs4pSCOzAsNSzilII7MCw2LOKUgjswLDcs4pSCOzAs" +
+      "OCzilII7MCw5LOKUgjswLDEwLOKUgjswLDExLOKUgjswLDEyLOKUgjswLDEzLOKUgjswLDE0LOKU" +
+      "gjswLDE1LOKUgjswLDE2LOKUgjswLDE3LOKUgjswLDE4LOKUgjswLDE5LOKUgjszMCwxLOKUgjsz" +
+      "MCwyLOKUgjszMCwzLOKUgjszMCw0LOKUgjszMCw1LOKUgjszMCw2LOKUgjszMCw3LOKUgjszMCw4" +
+      "LOKUgjszMCw5LOKUgjszMCwxMCzilII7MzAsMTEs4pSCOzMwLDEyLOKUgjszMCwxMyzilII7MzAs" +
+      "MTQs4pSCOzMwLDE1LOKUgjszMCwxNizilII7MzAsMTcs4pSCOzMwLDE4LOKUgjszMCwxOSzilII7" +
+      "MTAsMTAsVDsyMCwxMCxUCg=="
     )
 
   /**
