@@ -12,6 +12,7 @@ import de.kappmeier.asnarc.board.Direction.Direction
 import de.kappmeier.asnarc.game.{AsnarcGameImpl, AsnarcWorld}
 import de.kappmeier.asnarc.levels.PredefinedLevels
 import de.kappmeier.asnarc.render.AsnarcJSGameRenderer
+import de.kappmeier.asnarc.render.AsnarcJSRenderer
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 
 /**
@@ -40,18 +41,16 @@ object AsnarcJS {
   private var currentIntervalHandle: Option[SetIntervalHandle] = None
 
   @JSExport
-  def main(canvas: html.Canvas, level: String): Unit = {
+  def main(canvas: html.Canvas, level: String, blockSize: Int = 10): Unit = {
     cleanUp()
 
     val resolvedLevel: String = PredefinedLevels.resolve(level) match {
-      case Some(decodedLevel) => {
-        dom.console.log(s"Using named level: ${level}")
+      case Some(decodedLevel) =>
+        dom.console.log(s"Using named level: $level")
         decodedLevel
-      }
-      case None => {
+      case None =>
         dom.console.log(s"Using custom level data")
         level
-      }
     }
 
     println("Base64 encoded level: '" + resolvedLevel + "'")
@@ -60,6 +59,13 @@ object AsnarcJS {
 
     var asnarcState = AsnarcState.Running
     var gameWorld: AsnarcWorld = asnarcGame.initGameWorld()
+
+    // Create renderer configuration with the specified block size
+    val rendererConfig = new AsnarcJSRenderer(blockSize)
+
+    // Adjust canvas size to fit the level
+    canvas.width = rendererConfig.canvasWidth(gameWorld.board.cols)
+    canvas.height = rendererConfig.canvasHeight(gameWorld.board.rows)
 
     val keys = new mutable.Queue[Direction]
     var turns = 0
@@ -73,7 +79,7 @@ object AsnarcJS {
     }
 
     val localization = new AsnarcLocalizationDe
-    val renderer: AsnarcJSGameRenderer = new AsnarcJSGameRenderer(canvas, localization)
+    val renderer: AsnarcJSGameRenderer = new AsnarcJSGameRenderer(canvas, localization, rendererConfig)
     initGame()
 
     currentIntervalHandle = Some(scala.scalajs.js.timers.setInterval(100) {

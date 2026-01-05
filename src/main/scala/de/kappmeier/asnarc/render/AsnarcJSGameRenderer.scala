@@ -8,8 +8,13 @@ import org.scalajs.dom.html
 
 /**
   * Draws the Asnarc game into a canvas.
+  *
+  * @param canvas the HTML canvas element to render to
+  * @param loc localization for text rendering
+  * @param config renderer configuration with block size and derived values
   */
-class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization) extends AbstractAsnarcJSRenderer(canvas, loc) {
+class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization, config: AsnarcJSRenderer)
+    extends AbstractAsnarcJSRenderer(canvas, loc, config) {
 
     private val gameOverFont: RendererTextStyle = RendererTextStyle("sans-serif", 20, "darkred")
 
