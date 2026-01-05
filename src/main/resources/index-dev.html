@@ -1,17 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Asnarc Scala.js</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+        .controls {
+            margin: 10px 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .controls label {
+            margin-right: 5px;
+        }
+        #canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
-<body style="margin: 0px">
+<body style="margin: 10px">
 
-<div>
-    <label for="levelSelect">Level wählen:</label>
-    <select id="levelSelect"></select>
+<div class="controls">
+    <div>
+        <label for="levelSelect">Level:</label>
+        <select id="levelSelect"></select>
+    </div>
+    <div>
+        <label for="blockSize">Block Size:</label>
+        <input type="number" id="blockSize" value="10" min="5" max="30" style="width: 50px">
+    </div>
+    <button id="applyButton">Apply</button>
 </div>
-<div style="width: 600px; height=600px;">
-    <canvas style="display: inline" id="canvas" width="600" height="600" tabindex="1"></canvas>
+<div>
+    <canvas id="canvas" tabindex="1"></canvas>
 </div>
 
 <script type="text/javascript" src="../asnarc-fastopt/main.js"></script>
@@ -26,15 +47,23 @@
         select.appendChild(option);
     });
 
-    // Set an initial level and start the game
-    let currentLevel = 'Big';
-    AsnarcJS.main(document.getElementById('canvas'), currentLevel);
+    // Set default selection to 'Big'
+    select.value = 'Big';
+
+    function startGame() {
+        const level = select.value;
+        const blockSize = parseInt(document.getElementById('blockSize').value) || 10;
+        AsnarcJS.main(document.getElementById('canvas'), level, blockSize);
+    }
+
+    // Start game initially
+    startGame();
 
     // When a new level is selected, start a new game
-    select.addEventListener('change', function() {
-        currentLevel = select.value;
-        AsnarcJS.main(document.getElementById('canvas'), currentLevel);
-    });
+    select.addEventListener('change', startGame);
+
+    // Apply button for block size changes
+    document.getElementById('applyButton').addEventListener('click', startGame);
 </script>
 </body>
 </html>

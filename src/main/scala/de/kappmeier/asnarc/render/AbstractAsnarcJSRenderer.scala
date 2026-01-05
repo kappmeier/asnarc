@@ -9,8 +9,12 @@ import org.scalajs.dom.html
 
 /**
  * Provides helper methods for the canvas to draw on.
+ *
+ * @param canvas the HTML canvas element to render to
+ * @param loc localization for text rendering
+ * @param config renderer configuration with block size and derived values
  */
-class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
+class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization, val config: AsnarcJSRenderer) {
 
   val renderer: dom.CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
@@ -59,7 +63,7 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
    * @param element the location of the [[Element]] that is filled
    */
   def fillElement(element: Element, scale: Double = 1.0): Unit = {
-    AbstractAsnarcJSRenderer.fillElement(renderer, element)
+    AbstractAsnarcJSRenderer.fillElement(renderer, element, config)
   }
 
   /**
@@ -78,13 +82,13 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
 
   private def renderInfoLeft(board: AsnarcBoard, leftString: String): Unit = {
     renderer.textAlign = "left"
-    renderer.fillText(leftString, AsnarcJSRenderer.Border, board.rows * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border)
+    renderer.fillText(leftString, config.Border, board.rows * config.Size + config.Border)
   }
 
   private def renderInfoRight(board: AsnarcBoard, rightString: String): Unit = {
     renderer.textAlign = "right"
-    renderer.fillText(rightString, AsnarcJSRenderer.Size * board.cols - AsnarcJSRenderer.Border,
-                      board.rows * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border)
+    renderer.fillText(rightString, config.Size * board.cols - config.Border,
+                      board.rows * config.Size + config.Border)
   }
 
   /**
@@ -96,27 +100,27 @@ class AbstractAsnarcJSRenderer(canvas: html.Canvas, loc: AsnarcLocalization) {
   def drawCenterText(board: AsnarcBoard, text: String): Unit = {
     renderer.textAlign = "center"
     renderer.textBaseline = "middle"
-    renderer.fillText(text, board.cols * AsnarcJSRenderer.Size / 2, board.rows * AsnarcJSRenderer.Size / 2)
+    renderer.fillText(text, board.cols * config.Size / 2, board.rows * config.Size / 2)
   }
 
 }
 
 object AbstractAsnarcJSRenderer {
-  def fillElement(renderer: dom.CanvasRenderingContext2D, location: Element, scale: Double = 1.0): Unit = {
-    fillElementAt(renderer, location.p.x, location.p.y, location, scale)
+  def fillElement(renderer: dom.CanvasRenderingContext2D, location: Element, config: AsnarcJSRenderer, scale: Double = 1.0): Unit = {
+    fillElementAt(renderer, location.p.x, location.p.y, location, config, scale)
   }
 
   def fillElementAt(renderer: dom.CanvasRenderingContext2D, xPosition: Int, yPosition: Int, location: Element,
-                    scale: Double = 1.0): String = {
+                    config: AsnarcJSRenderer, scale: Double = 1.0): String = {
     val containsLeft = if (location.connects contains Direction.Left) 1 else 0
     val containsRight = if (location.connects contains Direction.Right) 1 else 0
     val containsUp = if (location.connects contains Direction.Up) 1 else 0
     val containsDown = if (location.connects contains Direction.Down) 1 else 0
 
-    val x = xPosition * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border + -1 * containsLeft * AsnarcJSRenderer.Border
-    val y = yPosition * AsnarcJSRenderer.Size + AsnarcJSRenderer.Border + -1 * containsUp * AsnarcJSRenderer.Border
-    val w = AsnarcJSRenderer.DrawSize + ((containsLeft + containsRight) * AsnarcJSRenderer.Border)
-    val h = AsnarcJSRenderer.DrawSize + ((containsUp + containsDown) * AsnarcJSRenderer.Border)
+    val x = xPosition * config.Size + config.Border + -1 * containsLeft * config.Border
+    val y = yPosition * config.Size + config.Border + -1 * containsUp * config.Border
+    val w = config.DrawSize + ((containsLeft + containsRight) * config.Border)
+    val h = config.DrawSize + ((containsUp + containsDown) * config.Border)
 
     renderer.fillRect(x * scale, y * scale, w * scale, h * scale)
     "x=" + x * scale + "y=" + y * scale + "w=" + w * scale + "h=" + h * scale
