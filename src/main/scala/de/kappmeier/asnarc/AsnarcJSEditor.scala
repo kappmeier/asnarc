@@ -36,12 +36,13 @@ object AsnarcJSEditor {
   /**
     * Alternative entry point that uses existing canvas elements from the HTML.
     *
-    * @param board   the main canvas for the game board
-    * @param details the container for element details
-    * @param level   base64 encoded level string
+    * @param board     the main canvas for the game board
+    * @param details   the container for element details
+    * @param level     level name (see [[PredefinedLevels]]) or base64 encoded level string
+    * @param blockSize the size of each block in pixels
     */
   @JSExport
-  def main(board: html.Canvas, details: html.Div, level: String): Unit = {
+  def main(board: html.Canvas, details: html.Div, level: String, blockSize: Int): Unit = {
     // Resolve level input - either a named level or raw level data
     println(s"Loading level...")
     val resolvedLevel: String = PredefinedLevels.resolve(level) match {
@@ -63,8 +64,8 @@ object AsnarcJSEditor {
 
     setupUI(detailsContainer)
 
-    // Create renderer configuration with default block size
-    val rendererConfig = new AsnarcJSRenderer()
+    // Create renderer configuration with specified block size
+    val rendererConfig = new AsnarcJSRenderer(blockSize)
     val localization = new AsnarcLocalizationDe
     renderer = new AsnarcJSEditorRenderer(boardCanvas, localization, rendererConfig)
 
