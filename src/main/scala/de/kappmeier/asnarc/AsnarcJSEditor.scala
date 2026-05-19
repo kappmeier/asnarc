@@ -107,7 +107,7 @@ object AsnarcJSEditor {
   }
 
   private def handleCanvasClick(e: dom.MouseEvent): Unit = {
-    val cellSize = Math.min((boardCanvas.width / state.width), (boardCanvas.height / state.height))
+    val cellSize = renderer.config.Size
 
     val rect = boardCanvas.getBoundingClientRect()
     val x = ((e.clientX - rect.left) / cellSize).toInt
