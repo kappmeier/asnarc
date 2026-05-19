@@ -26,13 +26,21 @@ class AsnarcJSEditorRenderer(boardCanvas: html.Canvas, loc: AsnarcLocalization, 
     highlightElement(x, y)
   }
 
+  /**
+    * Highlights an element upon selection. Adds a visible border.
+    *
+    * @param xPosition the horizontal index of the element on the board
+    * @param yPosition the vertical index of the element on the board
+    */
   private def highlightElement(xPosition: Int, yPosition: Int): Unit = {
     renderer.strokeStyle = "red"
-    renderer.lineWidth = 2
-    val x: Int = xPosition * config.Size
-    val y: Int = yPosition * config.Size
-    val w = config.DrawSize
-    val h = config.DrawSize
+    val lineWidth: Int = 2
+    renderer.lineWidth = lineWidth
+    val inset: Int = lineWidth / 2
+    val x: Int = xPosition * config.Size + inset
+    val y: Int = yPosition * config.Size + inset
+    val w = config.Size - lineWidth
+    val h = config.Size - lineWidth
     renderer.strokeRect(x, y, w, h)
   }
 }
