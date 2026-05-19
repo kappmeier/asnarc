@@ -1,6 +1,7 @@
 package de.kappmeier.asnarc.editor
 
-import de.kappmeier.asnarc.board.{AsnarcBoard, Point}
+import de.kappmeier.asnarc.board.Direction.Direction
+import de.kappmeier.asnarc.board.{AsnarcBoard, Direction, Point}
 import de.kappmeier.asnarc.elements.{Element, Empty, Teleport, Wall}
 
 /**
@@ -89,7 +90,37 @@ case class EditorState(width: Int, height: Int,
 
 object EditorState {
   def toAsnarcBoard(state: EditorState): AsnarcBoard = {
-    new AsnarcBoard(state.cells, Map.empty)
+    new AsnarcBoard(withDerivedConnects(state.cells), Map.empty)
+  }
+
+  /**
+    * Derives the `connects` property for each cell based on its neighboring cells of the same kind (Wall or Teleport).
+    *
+    * @param cells board cells, potentially unconnected
+    * @return the cells with `connects` derived from neighboring cells of the same kind (Wall or Teleport)
+    */
+  private def withDerivedConnects(cells: Map[Point, Element]): Map[Point, Element] = {
+    def existsNeighborOfSameKind(point: Point, direction: Direction, element: Element): Boolean =
+      cells.get(point + direction.direction).exists(neighbor => ofSameKind(element, neighbor))
+
+    cells.map { case (point, element) =>
+      val connects = Direction.values.iterator.collect {
+        case direction if existsNeighborOfSameKind(point, direction, element) => direction: Direction
+      }.toSet
+      point -> withConnects(element, connects)
+    }
+  }
+
+  private def ofSameKind(a: Element, b: Element): Boolean = (a, b) match {
+    case (_: Wall, _: Wall) => true
+    case (_: Teleport, _: Teleport) => true
+    case _ => false
+  }
+
+  private def withConnects(element: Element, connects: Set[Direction]): Element = element match {
+    case w: Wall => w.copy(connects = connects)
+    case t: Teleport => t.copy(connects = connects)
+    case _ => element
   }
 
   /**
