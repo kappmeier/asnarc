@@ -71,6 +71,7 @@ object AsnarcJSEditor {
 
     boardCanvas.onclick = (e: dom.MouseEvent) => handleCanvasClick(e)
 
+    resizeCanvasToState()
     render()
   }
 
@@ -91,6 +92,7 @@ object AsnarcJSEditor {
       val w = widthInput.value.toInt
       val h = heightInput.value.toInt
       state = EditorState(w, h)
+      resizeCanvasToState()
       render()
     }
 
@@ -118,6 +120,25 @@ object AsnarcJSEditor {
       state = state.rotateCellAt(point)
       render()
       renderer.highlight(x, y)
+    }
+  }
+
+  /**
+    * Resizes the canvas to the size of the entire board. Stretches the parent container as well by setting CSS styles
+    * accordingly.
+    */
+  private def resizeCanvasToState(): Unit = {
+    val config = renderer.config
+    val w = config.canvasWidth(state.width)
+    val h = config.canvasHeight(state.height)
+    boardCanvas.width = w
+    boardCanvas.height = h
+    boardCanvas.style.width = s"${w}px"
+    boardCanvas.style.height = s"${h}px"
+    val container = boardCanvas.parentElement
+    if (container != null) {
+      container.style.width = s"${w}px"
+      container.style.height = s"${h}px"
     }
   }
 
