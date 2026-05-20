@@ -123,24 +123,8 @@ object AsnarcJSEditor {
     }
   }
 
-  /**
-    * Resizes the canvas to the size of the entire board. Stretches the parent container as well by setting CSS styles
-    * accordingly.
-    */
-  private def resizeCanvasToState(): Unit = {
-    val config = renderer.config
-    val w = config.canvasWidth(state.width)
-    val h = config.canvasHeight(state.height)
-    boardCanvas.width = w
-    boardCanvas.height = h
-    boardCanvas.style.width = s"${w}px"
-    boardCanvas.style.height = s"${h}px"
-    val container = boardCanvas.parentElement
-    if (container != null) {
-      container.style.width = s"${w}px"
-      container.style.height = s"${h}px"
-    }
-  }
+  private def resizeCanvasToState(): Unit =
+    renderer.config.resizeCanvas(boardCanvas, state.width, state.height)
 
   private def render(): Unit = {
     val board = EditorState.toAsnarcBoard(state)
