@@ -1,0 +1,91 @@
+/* Asnarc Shared Styles */
+
+/* Page layout */
+body {
+    padding: 16px;
+}
+
+/* Main container layout */
+.asnarc-container {
+    display: flex;
+    gap: 16px;
+    width: 916px;
+    height: 600px;
+}
+
+.asnarc-canvas-container {
+    width: 600px;
+    height: 600px;
+}
+
+/* Top bar */
+.topbar {
+    margin: 0 0 16px 0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.topbar label {
+    margin-right: 5px;
+}
+
+/* Inputs */
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-wrapper label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.asnarc-input {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.asnarc-input:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 3px rgba(74, 144, 217, 0.4);
+}
+
+/* Buttons */
+.asnarc-button {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #4a90d9;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 8px;
+}
+
+.asnarc-button:hover {
+    background-color: #3a7bc8;
+}
+
+.asnarc-button:active {
+    background-color: #2a6bb8;
+}
+
+/* Canvas styling */
+#canvas {
+    display: block;
+    border: 1px solid #ccc;
+}
+
+#canvas:focus {
+    outline: 2px solid #4a90d9;
+}
