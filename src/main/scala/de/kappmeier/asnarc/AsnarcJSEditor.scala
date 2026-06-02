@@ -70,6 +70,7 @@ object AsnarcJSEditor {
     renderer = new AsnarcJSEditorRenderer(boardCanvas, localization, rendererConfig)
 
     boardCanvas.onclick = (e: dom.MouseEvent) => handleCanvasClick(e)
+    boardCanvas.onkeydown = (e: dom.KeyboardEvent) => handleKeyDown(e)
 
     resizeCanvasToState()
     render()
@@ -123,6 +124,13 @@ object AsnarcJSEditor {
       } else {
         state.copy(activeCell = newSelectedCell)
       }
+      render()
+    }
+  }
+
+  private def handleKeyDown(e: dom.KeyboardEvent): Unit = {
+    if (e.key == "Escape" && state.activeCell.isDefined) {
+      state = state.copy(activeCell = None)
       render()
     }
   }
