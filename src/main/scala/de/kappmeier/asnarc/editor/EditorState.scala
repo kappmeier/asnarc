@@ -7,14 +7,16 @@ import de.kappmeier.asnarc.elements.{Element, Empty, Teleport, Wall}
 /**
   * State of the edited level.
   *
-  * @param width    width of the board
-  * @param height   height of the board
-  * @param cells    map of all [[Element]]s by their position
-  * @param unpaired optionally an unpaired teleport position
+  * @param width      width of the board
+  * @param height     height of the board
+  * @param cells      map of all [[Element]]s by their position
+  * @param unpaired   optionally an unpaired teleport position
+  * @param activeCell optionally the currently selected cell
   */
 case class EditorState(width: Int, height: Int,
                        cells: Map[Point, Element] = Map.empty,
-                       unpaired: Option[Point] = None) {
+                       unpaired: Option[Point] = None,
+                       activeCell: Option[Point] = None) {
 
   /**
     * Shuffles the [[Element]] type at a specific position.

@@ -117,9 +117,13 @@ object AsnarcJSEditor {
     val point = Point(x, y)
 
     if (x >= 0 && x < state.width && y >= 0 && y < state.height) {
-      state = state.rotateCellAt(point)
+      val newSelectedCell = Some(point)
+      state = if (newSelectedCell.equals(state.activeCell)) {
+        state.rotateCellAt(point)
+      } else {
+        state.copy(activeCell = newSelectedCell)
+      }
       render()
-      renderer.highlight(x, y)
     }
   }
 
@@ -129,6 +133,7 @@ object AsnarcJSEditor {
   private def render(): Unit = {
     val board = EditorState.toAsnarcBoard(state)
     renderer.renderBoard(board, s"${state.width}x${state.height}")
+    state.activeCell.foreach(p => renderer.highlight(p.x, p.y))
     updateStatus()
   }
 
