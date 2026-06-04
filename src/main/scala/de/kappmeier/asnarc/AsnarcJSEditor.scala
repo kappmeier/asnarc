@@ -7,7 +7,7 @@ import org.scalajs.dom.{document, html}
 
 import de.kappmeier.asnarc.board.Point
 import de.kappmeier.asnarc.editor.{EditorState, TeleportPairManager}
-import de.kappmeier.asnarc.elements.Wall
+import de.kappmeier.asnarc.elements.{Teleport, Wall}
 import de.kappmeier.asnarc.levels.PredefinedLevels
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 import de.kappmeier.asnarc.render.{AsnarcJSEditorRenderer, AsnarcJSRenderer}
@@ -142,6 +142,9 @@ object AsnarcJSEditor {
     val board = EditorState.toAsnarcBoard(state)
     renderer.renderBoard(board, s"${state.width}x${state.height}")
     state.activeCell.foreach(p => renderer.highlight(p.x, p.y))
+    state.activeCell.flatMap(state.cells.get).collect {
+      case Teleport(_, _, Some(partner)) => partner
+    }.foreach(partner => renderer.highlightPartner(partner.x, partner.y))
     updateStatus()
   }
 

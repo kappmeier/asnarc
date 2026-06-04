@@ -71,15 +71,30 @@ class AsnarcJSEditorRenderer(boardCanvas: html.Canvas, loc: AsnarcLocalization, 
     * @param xPosition the horizontal index of the element on the board
     * @param yPosition the vertical index of the element on the board
     */
-  private def highlightElement(xPosition: Int, yPosition: Int): Unit = {
-    renderer.strokeStyle = "red"
+  private def highlightElement(xPosition: Int, yPosition: Int): Unit =
+    drawFrameRect(xPosition, yPosition, "red")
+
+  /**
+    * Emphasizes the partner of a selected paired teleport. Uses an orange, dashed border so it is unmistakably
+    * distinct from the red, solid selection highlight.
+    *
+    * @param x the horizontal index of the partner cell on the board
+    * @param y the vertical index of the partner cell on the board
+    */
+  def highlightPartner(x: Int, y: Int): Unit =
+    drawFrameRect(x, y, "#ff9800", scala.scalajs.js.Array(4.0, 2.0))
+
+  private def drawFrameRect(xPosition: Int, yPosition: Int, strokeStyle: String, lineDash: scala.scalajs.js.Array[Double] = scala.scalajs.js.Array()): Unit = {
+    renderer.strokeStyle = strokeStyle
     val lineWidth: Int = 2
     renderer.lineWidth = lineWidth
+    renderer.setLineDash(lineDash)
     val inset: Int = lineWidth / 2
     val x: Int = xPosition * config.Size + inset
     val y: Int = yPosition * config.Size + inset
     val w = config.Size - lineWidth
     val h = config.Size - lineWidth
     renderer.strokeRect(x, y, w, h)
+    renderer.setLineDash(scala.scalajs.js.Array())
   }
 }
