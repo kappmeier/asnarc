@@ -20,7 +20,7 @@ import scala.collection.mutable
  * The whole description of the board consists of a list of `;` separated list of the aforementioned 3 tuples, i.e.
  * `0,0,┌;59,39,┘;0,1,│`
  *
- * The following types are available: '─', '│', '┌', '┐', '┘', '└', '├', '┬', '┤', '┴', '┼', ' '
+ * The following types are available: '─', '│', '┌', '┐', '┘', '└', '├', '┬', '┤', '┴', '┼', ' ', 'T'
  *
  * All elements but the last one represent a filled block which is supposed to be connected with 1 or more neighbour
  * blocks. The last block represents an empty field. It is not required to submit empty fields, every field not
@@ -46,7 +46,7 @@ case class LevelGenerator() {
 
   /**
    * Generates the fixed level elements belonging to a level given as `String`. These elements comprise [[Wall]] and
-   * [[Teleport]].
+   * [[Teleport]]. Consecutive teleports are automatically paired with each other.
    *
    * @param levelInput the input as string
    * @return the static initial definition of a level
@@ -54,8 +54,16 @@ case class LevelGenerator() {
   private def generateBoardElements(levelInput: String): mutable.Queue[Element] = {
     val input: Seq[(Point, Char)] = breakBlocks(levelInput).map(x => breakBlock(x))
     val builder: mutable.Builder[Element, mutable.Queue[Element]] = mutable.Queue.newBuilder
+
+    // Collect teleport positions first to pair them
+    val teleportPositions: Seq[Point] = input.collect { case (location, 'T') => location }
+    val teleportPairs: Map[Point, Point] = teleportPositions.grouped(2).flatMap {
+      case Seq(a, b) => Seq(a -> b, b -> a)
+      case _ => Seq.empty
+    }.toMap
+
     builder ++= input.map {
-      case (location, element) if element == 'T' => Teleport(location, Set())
+      case (location, 'T') => Teleport(location, Set(), teleportPairs.get(location))
       case (location, element) => Wall(location, LevelGenerator.BoundMap(element))
     }
     builder.result()

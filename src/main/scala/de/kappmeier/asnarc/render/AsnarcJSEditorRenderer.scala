@@ -1,55 +1,100 @@
 package de.kappmeier.asnarc.render
 
-import de.kappmeier.asnarc.board.AsnarcBoard
-import de.kappmeier.asnarc.elements.Element
-import de.kappmeier.asnarc.render.AsnarcJSRenderer.stripSimpleName
-import de.kappmeier.asnarc.render.localization.AsnarcLocalization
-import org.scalajs.dom
 import org.scalajs.dom.html
+
+import de.kappmeier.asnarc.board.AsnarcBoard
+import de.kappmeier.asnarc.elements.Teleport
+import de.kappmeier.asnarc.render.localization.AsnarcLocalization
 
 /**
   * Draws the Asnarc game into a canvas.
   *
   * @param boardCanvas the HTML canvas element for the game board
-  * @param detailsCanvas the HTML canvas element for showing element details
-  * @param loc localization for text rendering
-  * @param config renderer configuration with block size and derived values
+  * @param loc         localization for text rendering
+  * @param config      renderer configuration with block size and derived values
   */
-class AsnarcJSEditorRenderer(boardCanvas: html.Canvas, detailsCanvas: html.Canvas,
-                             loc: AsnarcLocalization, config: AsnarcJSRenderer)
-    extends AbstractAsnarcJSRenderer(boardCanvas, loc, config) {
-
-  val rendererDetails: dom.CanvasRenderingContext2D = detailsCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-
-  val scale: Double = detailsCanvas.width.toDouble / config.Size
+class AsnarcJSEditorRenderer(boardCanvas: html.Canvas, loc: AsnarcLocalization, config: AsnarcJSRenderer)
+  extends AbstractAsnarcJSRenderer(boardCanvas, loc, config) {
 
   def renderBoard(board: AsnarcBoard, info: String): Unit = {
     clear()
     this.drawBoard(board)
+    renderEditorSpecificOverlay(board)
     renderInfo(board, info, "")
   }
 
-  def highlight(x: Int, y: Int) = {
+  /**
+    * Editor specific overlay.
+    *
+    * Marks unpaired teleports.
+    *
+    * @param board the game board
+    */
+  private def renderEditorSpecificOverlay(board: AsnarcBoard): Unit = {
+    board.staticMap.collect { case (p, t: Teleport) if t.target.isEmpty => p }
+      .foreach(p => hatchCell(p.x, p.y))
+  }
+
+  /**
+    * Overlays a diagonal hatch pattern on a single cell, clipped to the cell bounds. Used in the editor to mark
+    * unpaired teleports so they are visually distinct from paired (solid) ones.
+    *
+    * @param x the horizontal index of the cell on the board
+    * @param y the vertical index of the cell on the board
+    */
+  private def hatchCell(x: Int, y: Int): Unit = {
+    val px = x * config.Size
+    val py = y * config.Size
+    renderer.save()
+    renderer.beginPath()
+    renderer.rect(px, py, config.Size, config.Size)
+    renderer.clip()
+    renderer.strokeStyle = "white"
+    renderer.lineWidth = 1
+    val spacing = 4
+    (-config.Size until config.Size by spacing).foreach { step =>
+      renderer.beginPath()
+      renderer.moveTo(px + step, py)
+      renderer.lineTo(px + step + config.Size, py + config.Size)
+      renderer.stroke()
+    }
+    renderer.restore()
+  }
+
+  def highlight(x: Int, y: Int): Unit = {
     highlightElement(x, y)
   }
 
-  def highlightElement(element: Element): Unit = {
-    rendererDetails.clearRect(0, 0, detailsCanvas.width, detailsCanvas.height)
-    if (element.p.x >= 0 && element.p.y >= 0) {
-      val color = AsnarcJSRenderer.DrawColors.getOrElse(stripSimpleName(element.getClass.getSimpleName), "black")
-      rendererDetails.fillStyle = color
-      AbstractAsnarcJSRenderer.fillElementAt(rendererDetails, 0, 0, element, config, scale)
-      highlightElement(element.p.x, element.p.y)
-    }
-  }
+  /**
+    * Highlights an element upon selection. Adds a visible border.
+    *
+    * @param xPosition the horizontal index of the element on the board
+    * @param yPosition the vertical index of the element on the board
+    */
+  private def highlightElement(xPosition: Int, yPosition: Int): Unit =
+    drawFrameRect(xPosition, yPosition, "red")
 
-  def highlightElement(xPosition: Int, yPosition: Int): Unit = {
-    renderer.strokeStyle = "red"
-    renderer.lineWidth = 2
-    val x: Int = xPosition * config.Size
-    val y: Int = yPosition * config.Size
-    val w = config.DrawSize
-    val h = config.DrawSize
+  /**
+    * Emphasizes the partner of a selected paired teleport. Uses an orange, dashed border so it is unmistakably
+    * distinct from the red, solid selection highlight.
+    *
+    * @param x the horizontal index of the partner cell on the board
+    * @param y the vertical index of the partner cell on the board
+    */
+  def highlightPartner(x: Int, y: Int): Unit =
+    drawFrameRect(x, y, "#ff9800", scala.scalajs.js.Array(4.0, 2.0))
+
+  private def drawFrameRect(xPosition: Int, yPosition: Int, strokeStyle: String, lineDash: scala.scalajs.js.Array[Double] = scala.scalajs.js.Array()): Unit = {
+    renderer.strokeStyle = strokeStyle
+    val lineWidth: Int = 2
+    renderer.lineWidth = lineWidth
+    renderer.setLineDash(lineDash)
+    val inset: Int = lineWidth / 2
+    val x: Int = xPosition * config.Size + inset
+    val y: Int = yPosition * config.Size + inset
+    val w = config.Size - lineWidth
+    val h = config.Size - lineWidth
     renderer.strokeRect(x, y, w, h)
+    renderer.setLineDash(scala.scalajs.js.Array())
   }
 }

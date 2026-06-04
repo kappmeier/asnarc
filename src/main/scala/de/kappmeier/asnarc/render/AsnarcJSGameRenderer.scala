@@ -18,9 +18,6 @@ class AsnarcJSGameRenderer(canvas: html.Canvas, loc: AsnarcLocalization, config:
 
     private val gameOverFont: RendererTextStyle = RendererTextStyle("sans-serif", 20, "darkred")
 
-    canvas.width = canvas.parentElement.clientWidth
-    canvas.height = canvas.parentElement.clientHeight
-
     def render(gameWorld: AsnarcWorld, asnarcState: AsnarcState): Unit = {
         clear()
 

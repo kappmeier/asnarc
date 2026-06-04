@@ -1,5 +1,7 @@
 package de.kappmeier.asnarc.render
 
+import org.scalajs.dom.html
+
 import de.kappmeier.asnarc.elements._
 
 import scala.collection.immutable.HashMap
@@ -30,6 +32,28 @@ class AsnarcJSRenderer(val Size: Int = 10) {
    * @return the required canvas height in pixels
    */
   def canvasHeight(rows: Int): Int = rows * Size + AsnarcJSRenderer.infoLineHeight
+
+  /**
+   * Resizes the canvas (and its CSS parent container) so that the entire `cols`×`rows` board plus the info line is
+   * visible at 1:1 CSS-to-pixel scale.
+   *
+   * @param canvas the canvas to resize
+   * @param cols   number of board columns
+   * @param rows   number of board rows
+   */
+  def resizeCanvas(canvas: html.Canvas, cols: Int, rows: Int): Unit = {
+    val w = canvasWidth(cols)
+    val h = canvasHeight(rows)
+    canvas.width = w
+    canvas.height = h
+    canvas.style.width = s"${w}px"
+    canvas.style.height = s"${h}px"
+    val container = canvas.parentElement
+    if (container != null) {
+      container.style.width = s"${w}px"
+      container.style.height = s"${h}px"
+    }
+  }
 }
 
 /**

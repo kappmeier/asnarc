@@ -3,9 +3,11 @@ package de.kappmeier.asnarc
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 import org.scalajs.dom
-import org.scalajs.dom.html
+import org.scalajs.dom.{document, html}
 
-import de.kappmeier.asnarc.board.{AsnarcBoard, Point}
+import de.kappmeier.asnarc.board.Point
+import de.kappmeier.asnarc.editor.{EditorState, TeleportPairManager}
+import de.kappmeier.asnarc.elements.{Teleport, Wall}
 import de.kappmeier.asnarc.levels.PredefinedLevels
 import de.kappmeier.asnarc.render.localization.AsnarcLocalizationDe
 import de.kappmeier.asnarc.render.{AsnarcJSEditorRenderer, AsnarcJSRenderer}
@@ -22,9 +24,27 @@ import de.kappmeier.asnarc.render.{AsnarcJSEditorRenderer, AsnarcJSRenderer}
 @JSExportTopLevel("AsnarcJSEditor")
 object AsnarcJSEditor {
 
+  private var state: EditorState = EditorState(20, 15)
+  private var renderer: AsnarcJSEditorRenderer = _
+  private var boardCanvas: html.Canvas = _
+  private var detailsContainer: html.Div = _
+  private var statusLabel: html.Span = _
+
+  private val MinimumSize = 5
+  private val MaximumSize = 100
+
+  /**
+    * Alternative entry point that uses existing canvas elements from the HTML.
+    *
+    * @param board     the main canvas for the game board
+    * @param details   the container for element details
+    * @param level     level name (see [[PredefinedLevels]]) or base64 encoded level string
+    * @param blockSize the size of each block in pixels
+    */
   @JSExport
-  def main(canvas: html.Canvas, level: String): Unit = {
+  def main(board: html.Canvas, details: html.Div, level: String, blockSize: Int): Unit = {
     // Resolve level input - either a named level or raw level data
+    println(s"Loading level...")
     val resolvedLevel: String = PredefinedLevels.resolve(level) match {
       case Some(decodedLevel) => {
         dom.console.log(s"Using named level: ${level}")
@@ -36,30 +56,135 @@ object AsnarcJSEditor {
       }
     }
 
-    val board: AsnarcBoard = new AsnarcBoard(resolvedLevel)
+    state = EditorState.fromLevel(resolvedLevel)
+    println(s"Loaded a board of size ${state.width}x${state.height}")
 
-    // Create renderer configuration with default block size
-    val rendererConfig = new AsnarcJSRenderer()
+    boardCanvas = board
+    detailsContainer = details
 
+    setupUI(detailsContainer)
+
+    // Create renderer configuration with specified block size
+    val rendererConfig = new AsnarcJSRenderer(blockSize)
     val localization = new AsnarcLocalizationDe
-    val detailsCanvas: html.Canvas = dom.document.getElementById("canvas-details").asInstanceOf[html.Canvas]
-    val renderer: AsnarcJSEditorRenderer = new AsnarcJSEditorRenderer(canvas, detailsCanvas, localization, rendererConfig)
+    renderer = new AsnarcJSEditorRenderer(boardCanvas, localization, rendererConfig)
 
-    renderer.renderBoard(board, "")
+    boardCanvas.onclick = (e: dom.MouseEvent) => handleCanvasClick(e)
+    boardCanvas.onkeydown = (e: dom.KeyboardEvent) => handleKeyDown(e)
 
-    canvas.onclick = (e: dom.MouseEvent) => {
-      val x: Int = e.clientX.asInstanceOf[Int] / rendererConfig.Size
-      val y = e.clientY.asInstanceOf[Int] / rendererConfig.Size
-      if (x < board.cols && y < board.rows) {
-        renderer.renderBoard(board, "Click: " + board.elementAt(Point(x, y)) + " at " + x + "," + y)
-        renderer.highlight(x, y)
-        renderer.highlightElement(board.elementAt(Point(x, y)))
-      }
+    resizeCanvasToState()
+    render()
+  }
 
+  private def setupUI(container: html.Div): Unit = {
+    container.innerHTML = ""
+
+    // Set up the controls
+    val controls = document.createElement("div").asInstanceOf[html.Div]
+    controls.className = "editor-controls"
+
+    val widthInput = createNumberInput("Width:", 20)
+    val heightInput = createNumberInput("Height:", 15)
+
+    val createButton = document.createElement("button").asInstanceOf[html.Button]
+    createButton.textContent = "Create new level"
+    createButton.className = "editor-button"
+    createButton.onclick = (_: dom.MouseEvent) => {
+      val w = widthInput.value.toInt
+      val h = heightInput.value.toInt
+      state = EditorState(w, h)
+      resizeCanvasToState()
+      render()
     }
 
-    canvas.onkeydown = (e: dom.KeyboardEvent) => {
+    statusLabel = document.createElement("span").asInstanceOf[html.Span]
+    statusLabel.className = "editor-status"
+
+    controls.appendChild(widthInput.parentElement)
+    controls.appendChild(heightInput.parentElement)
+    controls.appendChild(createButton)
+    controls.appendChild(statusLabel)
+
+    container.appendChild(controls)
+    boardCanvas.onclick = (e: dom.MouseEvent) => handleCanvasClick(e)
+  }
+
+  private def handleCanvasClick(e: dom.MouseEvent): Unit = {
+    val cellSize = renderer.config.Size
+
+    val rect = boardCanvas.getBoundingClientRect()
+    val x = ((e.clientX - rect.left) / cellSize).toInt
+    val y = ((e.clientY - rect.top) / cellSize).toInt
+    val point = Point(x, y)
+
+    if (x >= 0 && x < state.width && y >= 0 && y < state.height) {
+      val newSelectedCell = Some(point)
+      state = if (newSelectedCell.equals(state.activeCell)) {
+        state.rotateCellAt(point)
+      } else {
+        state.copy(activeCell = newSelectedCell)
+      }
+      render()
     }
   }
 
+  private def handleKeyDown(e: dom.KeyboardEvent): Unit = {
+    if (e.key == "Escape" && state.activeCell.isDefined) {
+      state = state.copy(activeCell = None)
+      render()
+    }
+  }
+
+  private def resizeCanvasToState(): Unit =
+    renderer.config.resizeCanvas(boardCanvas, state.width, state.height)
+
+  private def render(): Unit = {
+    val board = EditorState.toAsnarcBoard(state)
+    renderer.renderBoard(board, s"${state.width}x${state.height}")
+    state.activeCell.foreach(p => renderer.highlight(p.x, p.y))
+    state.activeCell.flatMap(state.cells.get).collect {
+      case Teleport(_, _, Some(partner)) => partner
+    }.foreach(partner => renderer.highlightPartner(partner.x, partner.y))
+    updateStatus()
+  }
+
+  private def createNumberInput(label: String, default: Int): html.Input = {
+    val wrapper = document.createElement("div").asInstanceOf[html.Div]
+    wrapper.className = "input-wrapper"
+
+    val labelEl = document.createElement("label").asInstanceOf[html.Label]
+    labelEl.textContent = label
+
+    val input = document.createElement("input").asInstanceOf[html.Input]
+    input.`type` = "number"
+    input.value = default.toString
+    input.min = MinimumSize.toString
+    input.max = MaximumSize.toString
+    input.className = "editor-input"
+
+    wrapper.appendChild(labelEl)
+    wrapper.appendChild(input)
+    input
+  }
+
+  private def updateStatus(): Unit = {
+    val pairs = TeleportPairManager.findPairs(state)
+    val unpaired = TeleportPairManager.findUnpaired(state)
+    val wallCount = state.cells.count(_._2.isInstanceOf[Wall])
+
+    val statusText = new StringBuilder()
+    statusText.append(s"Size: ${state.width}x${state.height} | ")
+    statusText.append(s"Walls: $wallCount | ")
+    statusText.append(s"Teleport pairs: ${pairs.size}")
+    statusText.append(unpaired.map(u => s" | ⚠ Unpaired teleport at $u").getOrElse(""))
+
+    statusLabel.textContent = statusText.toString()
+    statusLabel.className = s"editor-status ${
+      if (unpaired.isDefined) {
+        "status-warning"
+      } else {
+        "status-ok"
+      }
+    }"
+  }
 }

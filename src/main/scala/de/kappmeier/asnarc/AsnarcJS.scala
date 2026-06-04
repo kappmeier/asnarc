@@ -64,8 +64,7 @@ object AsnarcJS {
     val rendererConfig = new AsnarcJSRenderer(blockSize)
 
     // Adjust canvas size to fit the level
-    canvas.width = rendererConfig.canvasWidth(gameWorld.board.cols)
-    canvas.height = rendererConfig.canvasHeight(gameWorld.board.rows)
+    rendererConfig.resizeCanvas(canvas, gameWorld.board.cols, gameWorld.board.rows)
 
     val keys = new mutable.Queue[Direction]
     var turns = 0
